@@ -88,10 +88,12 @@ GNU Radio supports several radio front-ends, either natively or through addition
 We will be using Ettus Research USRP platform and RTL-SDR TV tuners.
 
 \section{First flow-graph}
-Lets make our first flow-graph. Our aim is to generate a sinusoid and then plot it on a scope sink.
+Lets make our first flow-graph. Our aim is to generate a sinusoid and play it on audio output.
 Open GNU Radio companion by executing gnuradio-companion on a terminal. 
 It opens a window similar to the one given in Figure \ref{fig:grc}.
-When we open a new flow graph, a default graph as shown in Figure \ref{fig:audio-play1} comes up.
+When we open a new flow graph, a default graph as shown in Figure \ref{fig:newgraph} comes up.
+The completed flow-graph is shown in Figure \ref{fig:audio-play1}.
+
 \begin{figure}
 \centering
  \includegraphics[scale=0.23]{figures/grc.png}
@@ -103,7 +105,14 @@ When we open a new flow graph, a default graph as shown in Figure \ref{fig:audio
 \centering
  \includegraphics[scale=0.4]{figures/gnuradio-new-flowgraph.png}
  \caption{Constructing a flow graph. On the left top we see the options block. The variable block defines a variable called samp\_rate.
- \label{fig:audio-play1}}
+ We can change the value associated with this variable by double clicking on it and editing the property window that pops up.
+ One can use this variable in other block by putting the variable id i.e, samp\_rate.
+ \label{fig:newgraph}}
+\end{figure}
+\begin{figure}
+\centering
+ \includegraphics[scale=0.50]{figures/audio-play1.png}
+ \caption{Playing 500Hz sinusoid on audio output. \label{fig:audio-play1}}
 \end{figure}
 
 
