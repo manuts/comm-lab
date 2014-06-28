@@ -42,7 +42,8 @@
 }
 \usepackage{caption}
 \usepackage{url}
-
+% for appendix
+\usepackage[toc,page]{appendix}
 \begin{document}
 
 \tableofcontents
@@ -88,10 +89,12 @@ GNU Radio supports several radio front-ends, either natively or through addition
 We will be using Ettus Research USRP platform and RTL-SDR TV tuners.
 
 \section{First flow-graph}
-Lets make our first flow-graph. Our aim is to generate a sinusoid and then plot it on a scope sink.
+Lets make our first flow-graph. Our aim is to generate a sinusoid and play it on audio output.
 Open GNU Radio companion by executing gnuradio-companion on a terminal. 
 It opens a window similar to the one given in Figure \ref{fig:grc}.
-When we open a new flow graph, a default graph as shown in Figure \ref{fig:audio-play1} comes up.
+When we open a new flow graph, a default graph as shown in Figure \ref{fig:newgraph} comes up.
+The completed flow-graph is shown in Figure \ref{fig:audio-play1}.
+When we execute this flow-graph, it is a python program that is getting executed.
 
 \begin{figure}
 \centering
@@ -106,30 +109,44 @@ When we open a new flow graph, a default graph as shown in Figure \ref{fig:audio
  \caption{Constructing a flow graph. On the left top we see the options block. The variable block defines a variable called samp\_rate.
  We can change the value associated with this variable by double clicking on it and editing the property window that pops up.
  One can use this variable in other block by putting the variable id i.e, samp\_rate.
- \label{fig:audio-play1}}
+ \label{fig:newgraph}}
+\end{figure}
+\begin{figure}
+\centering
+ \includegraphics[scale=0.80]{figures/audio-play1.png}
+ \caption{Playing 500Hz sinusoid on audio output.
+ Take signal source and audio sink block from the list of blocks.
+ Set the data type of signal source to float.
+ Set the frequency to 500Hz and sampling rate to 32k.
+ Set the sampling rate in the audio sink block to 32k.
+ Connect these blocks and execute the flow-graph.\label{fig:audio-play1}}
 \end{figure}
 
+\begin{appendices}
+\lstinputlisting[language=Python, caption=The python program corresponding to the flow-graph in Figure \ref{fig:audio-play1}]
+{flowgraphs/audioplay1.py}
+\end{appendices}
 
-\section{IQ Modulator Board}
-The IQ modulator board features Linear Technology's LTC 5598\cite{bib:modchip}
-High Linearity Direct Quadrature
-Modulator, which works in the range from 5MHz to 1600MHz. 
-It allows direct modulation of an RF signal using differential I and Q signals.
-The I/Q baseband inputs consist of voltage-to-current converters that in turn drive double-balanced mixers.
-The outputs of these mixers are summed and applied to a buffer,
-which converts the differential mixer signals to a $50\Omega$ single-ended buffered RF output.
-
-The carrier to the modulator is supplied from Linear Technology's LTC 6946-1\cite{bib:pllchip}, 
-an ultra-low noise and spurious integer-N synthesizer with integrated VCO. 
-This chip is a high performance, low noise phase-locked loop (PLL) with a fully integrated VCO,
-including a reference divider, phase-frequency detector (PFD) with phase-lock indicator,
-ultralow noise charge pump, integer feedback divider, and VCO output divider.
-It's frequency range is from 373MHz to 3740MHz. 
-With the combination of these chips the transmitter can communicate between 373MHz to 1600MHz.
-
-The synthesizer can be programmed through SPI interface so as to select different frequencies of operation.
-We use microchip's PIC18F4550 as the SPI controller and also for USB interfacing.
-The modulator board is designed to work either using the USB power or from external power supply.
+% \section{IQ Modulator Board}
+% The IQ modulator board features Linear Technology's LTC 5598\cite{bib:modchip}
+% High Linearity Direct Quadrature
+% Modulator, which works in the range from 5MHz to 1600MHz. 
+% It allows direct modulation of an RF signal using differential I and Q signals.
+% The I/Q baseband inputs consist of voltage-to-current converters that in turn drive double-balanced mixers.
+% The outputs of these mixers are summed and applied to a buffer,
+% which converts the differential mixer signals to a $50\Omega$ single-ended buffered RF output.
+% 
+% The carrier to the modulator is supplied from Linear Technology's LTC 6946-1\cite{bib:pllchip}, 
+% an ultra-low noise and spurious integer-N synthesizer with integrated VCO. 
+% This chip is a high performance, low noise phase-locked loop (PLL) with a fully integrated VCO,
+% including a reference divider, phase-frequency detector (PFD) with phase-lock indicator,
+% ultralow noise charge pump, integer feedback divider, and VCO output divider.
+% It's frequency range is from 373MHz to 3740MHz. 
+% With the combination of these chips the transmitter can communicate between 373MHz to 1600MHz.
+% 
+% The synthesizer can be programmed through SPI interface so as to select different frequencies of operation.
+% We use microchip's PIC18F4550 as the SPI controller and also for USB interfacing.
+% The modulator board is designed to work either using the USB power or from external power supply.
 
 
 %%% References
