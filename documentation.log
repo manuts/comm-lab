@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2013.10.12)  25 JUN 2014 12:56
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2014.1.25)  28 JUN 2014 19:15
 entering extended mode
  %&-line parsing enabled.
 **documentation.tex
@@ -498,36 +498,37 @@ Package caption Info: End \AtBeginDocument code.
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
 Chapter 1.
-<figures/grc.png, id=8, 1927.2pt x 1084.05pt>
-File: figures/grc.png Graphic file (type png)
- <use figures/grc.png>
-<figures/gnuradio-new-flowgraph.png, id=9, 1027.84pt x 513.92pt>
-File: figures/gnuradio-new-flowgraph.png Graphic file (type png)
-
-<use figures/gnuradio-new-flowgraph.png>
-<figures/audio-play1.png, id=10, 501.875pt x 301.125pt>
+<figures/audio-play1.png, id=8, 602.25pt x 301.125pt>
 File: figures/audio-play1.png Graphic file (type png)
 
 <use figures/audio-play1.png> [2
 
-] [3 <./figures/grc.png (PNG copy)> <./figures/gnuradio-new-flowgraph.png (PNG 
-copy)>] [4 <./figures/audio-play1.png (PNG copy)>] [5
+]
+<figures/signal-source-out.pdf, id=12, 587.19376pt x 442.65375pt>
+File: figures/signal-source-out.pdf Graphic file (type pdf)
+
+<use figures/signal-source-out.pdf>
+<figures/fft.png, id=14, 702.625pt x 401.5pt>
+File: figures/fft.png Graphic file (type png)
+ <use figures/fft.png> [3 <./figures/audio-play1.png (PNG copy)> <./figures/sig
+nal-source-out.pdf>] [4 <./figures/fft.png (PNG copy)>] [5
 
 
-] (/usr/share/texmf-texlive/tex/latex/listings/lstlang1.sty
+]
+(/usr/share/texmf-texlive/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2004/09/05 1.3 listings language file
 )
 (./flowgraphs/audioplay1.py) [6] [7
 
 ] (./documentation.aux) ) 
 Here is how much of TeX's memory you used:
- 5191 strings out of 493848
- 70723 string characters out of 1152822
- 483474 words of memory out of 3000000
- 8417 multiletter control sequences out of 15000+50000
+ 5194 strings out of 493848
+ 70781 string characters out of 1152823
+ 500474 words of memory out of 3000000
+ 8420 multiletter control sequences out of 15000+50000
  8660 words of font info for 32 fonts, out of 3000000 for 9000
  714 hyphenation exceptions out of 8191
- 36i,7n,39p,463b,1246s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 36i,8n,39p,432b,1244s stack positions out of 5000i,500n,10000p,200000b,50000s
 </usr/share/texmf-texlive/fonts/type1/public/amsfonts/
 cm/cmbx10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.p
 fb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/sha
@@ -535,9 +536,9 @@ re/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texmf-texl
 ive/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-texlive/fonts/typ
 e1/public/amsfonts/cm/cmsy8.pfb></usr/share/texmf-texlive/fonts/type1/public/am
 sfonts/cm/cmtt10.pfb>
-Output written on documentation.pdf (7 pages, 319634 bytes).
+Output written on documentation.pdf (7 pages, 181548 bytes).
 PDF statistics:
- 57 PDF objects out of 1000 (max. 8388607)
+ 85 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  16 words of extra memory for PDF output out of 10000 (max. 10000000)
 
