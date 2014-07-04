@@ -1,0 +1,299 @@
+\documentclass[t]{beamer}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{ifthen}
+\usepackage{calc}
+\usepackage{datatool}
+\usepackage{datapie}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\usetikzlibrary{calendar}
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\wt}{\operatornamewithlimits{wt}}
+
+\mode<presentation>
+{
+  \usetheme{Singapore}
+  %\useoutertheme{infolines} % Showing only current section in navigation
+  \setbeamertemplate{headline}{}  % Empty headline
+  \setbeamertemplate{footline}[frame number]  % Getting rid of footer items except slide number
+  \setbeamercovered{invisible}
+  \beamertemplatenavigationsymbolsempty % Getting rid of navigation bullets at the bottom
+}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+
+\title[EE 703 DMT]{Probability Theory}
+\author[Saravanan V]
+{
+  Saravanan Vijayakumaran\\
+  \href{mailto:sarva@ee.iitb.ac.in}{sarva@ee.iitb.ac.in}
+}
+\institute[IIT Bombay]
+{
+  Department of Electrical Engineering\\
+  Indian Institute of Technology Bombay
+}
+\date{August 1, 2013}
+
+\begin{document}
+
+%% Frame %%
+\begin{frame}
+  \titlepage
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Probability Theory}
+  \footnotesize
+  \begin{itemize}
+    \item Branch of mathematics which pertains to random phenomena
+    \item \pause Used to model uncertainty in the real world
+    \item \pause Applications
+      \begin{itemize}
+        \scriptsize
+        \item \pause Communications
+        \item \pause Signal Processing
+        \item \pause Statistical Inference
+        \item \pause Finance
+        \item \pause Gambling
+      \end{itemize}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{What is Probability?}
+  \footnotesize
+  \begin{itemize}
+    \item \pause Classical definition: Ratio of outcomes favorable to an event to the total number of outcomes provided all outcomes are equally likely.
+      \begin{eqnarray*}
+        P(A) = \frac{N_A}{N}
+      \end{eqnarray*}
+    \item \pause Relative frequency definition:
+      \begin{eqnarray*}
+        P(A) = \lim_{N \rightarrow \infty} \frac{N_A}{N}
+      \end{eqnarray*}
+    \item \pause Axiomatic definition: A countably additive function defined on the set of events with range in the interval $[0,1]$.
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Sample Space}
+  \footnotesize
+  \begin{definition}[]
+    The set of all possible outcomes of an experiment is called the sample space and is denoted by $\Omega$.
+  \end{definition}
+  \pause
+  \begin{block}{Examples}
+    \begin{itemize}
+      \item \pause Coin toss: $\Omega = \pause \{\mathsf{Heads}, \mathsf{Tails}\}$
+      \item \pause Roll of a die: $\Omega = \pause \{1,2,3,4,5,6\}$
+      \item \pause Tossing of two coins: $\Omega = \pause \{(H,H), (T,H), (H,T), (T,T)\}$
+      \item \pause Coin is tossed until heads appear. What is $\Omega$?
+      \item \pause Life expectancy of a random person. $\Omega = \pause {[0, 120]}$ years
+    \end{itemize}
+  \end{block}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Events}
+  \footnotesize
+  \begin{itemize}
+    \item An event is a subset of the sample space
+  \end{itemize}
+  \pause
+  \begin{block}{Examples}
+    \begin{itemize}
+      \item \pause Coin toss: $\Omega = \{\mathsf{Heads}, \mathsf{Tails}\}$. 
+      
+      \pause $E = \{\mathsf{Heads}\}$ is the event that a head appears on the flip of a coin.
+      \item \pause Roll of a die: $\Omega = \{1,2,3,4,5,6\}$. 
+      
+      \pause $E = \{2,4,6\}$ is the event that an even number appears.
+      \item \pause Life expectancy. $\Omega={[0,120]}$. 
+      
+      \pause $E=[50,120]$ is the event that a random person lives beyond 50 years.
+    \end{itemize}
+  \end{block}
+  \pause
+  \begin{definition}[Mutually Exclusive Events]
+  \pause
+  Events $E$ and $F$ are said to be mutually exclusive if $E\cap F = \phi$. 
+  \end{definition}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Probability Measure}
+  \footnotesize
+  \pause
+  \begin{definition}
+    A mapping $P$ on the event space which satisfies
+    \begin{enumerate}
+      \pause
+      \item $0 \leq P(E) \leq 1$
+      \pause
+      \item $P(\Omega) = 1$
+      \pause
+      \item For any sequence of events $E_1,E_2, \ldots$ that are pairwise mutually
+      exclusive, i.e. $E_n \cap E_m = \phi$ for $n\neq m$, 
+      \begin{equation*}
+      P\left( \bigcup_{n=1}^{\infty} E_n \right) = \sum_{n=1}^{\infty} P(E_n)
+      \end{equation*}
+      \end{enumerate}
+  \end{definition}
+  \pause
+  \begin{example}[Coin Toss]
+    $S = \{\text{Heads}, \text{Tails}\}$, $P(\{\text{Heads}\}) = P(\{\text{Tails}\}) = \frac{1}{2}$
+  \end{example}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Some Properties of the Probability Measure}
+  \footnotesize
+  \begin{itemize}
+    \item \pause $P(A^c) = \pause 1-P(A)$
+    \item \pause If $ A \subseteq B$, then \pause $P(A) \leq P(B)$
+    \item \pause $P(A \cup B) = \pause P(A) + P(B) - P(A \cap B)$
+    \item \pause
+      \begin{eqnarray*}
+        P\left(\bigcup_{i=1}^{n} A_i\right)  & = & \pause \sum_i P(A_i) - \sum_{i < j} P(A_i \cap A_j) + \sum_{i < j < k} P(A_i \cap A_j \cap A_k) - \\
+                                                  &   & \cdots + (-1)^{n+1} P(A_1 \cap A_2 \cap \cdots A_n)
+      \end{eqnarray*}
+    \item \pause
+      \begin{eqnarray*}
+        P\left(\bigcap_{i=1}^{n} A_i\right)  & = & \pause \sum_i P(A_i) - \sum_{i < j} P(A_i \cup A_j) + \sum_{i < j < k} P(A_i \cup A_j \cup A_k) - \\
+                                                  &   & \cdots + (-1)^{n+1} P(A_1 \cup A_2 \cup \cdots A_n)
+      \end{eqnarray*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Conditional Probability}
+  \footnotesize
+  \pause
+  \begin{definition}[]
+    If $P(B) > 0$ then the conditional probability that $A$ occurs given that $B$ occurs is defined to be
+      \begin{equation*}
+        P(A | B) = \frac{P(A \cap B)}{P(B)}
+      \end{equation*}
+  \end{definition}
+  \pause
+  \begin{block}{Examples}
+    \begin{itemize}
+      \item \pause Two fair dice are thrown. Given that the first shows 3, what is the probability that the total exceeds 6?
+      \item \pause A family has two children. What is the probability that both are boys, given that at least one is a boy?
+      \item \pause A family has two children. What is the probability that both are boys, given that the younger is a boy?
+      \item \pause A box has three white balls $w_1$, $w_2$, and $w_3$ and two red balls $r_1$ and $r_2$. Two random balls are removed in succession. What is the probability that the first removed ball is white and the second is red?
+    \end{itemize}
+  \end{block}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Law of Total Probability}
+  \footnotesize
+  \pause
+  \begin{theorem}
+    For any events $A$ and $B$ such that $0 < P(B) < 1$,
+      \begin{equation*}
+        P(A) = P(A|B)P(B) + P(A|B^c)P(B^c).
+      \end{equation*}
+    \pause More generally, let $B_1, B_2,\ldots,B_n$ be a partition of $\Omega$ such that $P(B_i) > 0$ for all $i$. Then
+      \begin{equation*}
+        P(A) = \sum_{i=1}^n P(A|B_i)P(B_i)
+      \end{equation*}
+  \end{theorem}
+  \pause
+  \begin{block}{Examples}
+    \begin{itemize}
+      \item \pause Box 1 contains 3 white and 2 black balls. Box 2 contains 4 white and 6 black balls. If a box is selected at random and a ball is chosen at random from it, what is the probability that it is white?
+      \item \pause We have two coins; the first is fair and the second has heads on both sides. A coin is picked at random and tossed twice. What is the probability of heads showing up in both tosses?
+    \end{itemize}
+  \end{block}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Bayes' Theorem}
+  \footnotesize
+  \pause
+  \begin{theorem}[]
+    For any events $A$ and $B$ such that $P(A) > 0, P(B) > 0$,
+      \begin{equation*}
+        P(A|B) = \frac{P(B|A)P(A)}{P(B)}.
+      \end{equation*}
+    \pause If $A_1, \ldots, A_n$ is a partition of $\Omega$ such that $P(A_i) > 0$ and $P(B) > 0$, then
+      \begin{equation*}
+        P(A_j|B) = \frac{P(B|A_j)P(A_j)}{\sum_{i=1}^nP(B|A_i)P(A_i)}.
+      \end{equation*}
+  \end{theorem}
+  \pause
+  \begin{block}{Examples}
+    \begin{itemize}
+      \item \pause We have two coins; the first is fair and the second has heads on both sides. A coin is picked at random and tossed twice. If heads showed up in both tosses, what is the probability that the coin is fair?
+    \end{itemize}
+  \end{block}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Independence}
+  \footnotesize
+  \pause
+  \begin{definition}[]
+    Events $A$ and $B$ are called independent if
+      \begin{equation*}
+        P(A \cap B) = P(A)P(B).
+      \end{equation*}
+    \pause More generally, a family $\{A_i: i \in I\}$ is called independent if
+      \begin{equation*}
+        P\left( \bigcap_{i \in J} A_i \right) = \prod_{i \in J} P(A_i)
+      \end{equation*}
+    for all finite subsets $J$ of $I$.
+  \end{definition}
+  \pause
+  \begin{block}{Examples}
+    \begin{itemize}
+      \item \pause A fair coin is tossed twice. The first toss is independent of the second toss.
+      \item \pause Two fair dice are rolled. Is the the sum of the faces independent of the number shown by the first die?
+    \end{itemize}
+  \end{block}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Conditional Independence}
+  \footnotesize
+  \pause
+  \begin{definition}[]
+    Let $C$ be an event with $P(C) > 0$. Two events $A$ and $B$ are called conditionally independent given $C$ if
+      \begin{equation*}
+        P(A \cap B | C) = P(A | C)P(B | C).
+      \end{equation*}
+  \end{definition}
+  \pause
+  \begin{block}{Example}
+    \begin{itemize}
+      \item \pause We have two coins; the first is fair and the second has heads on both sides. A coin is picked at random and tossed twice. Are the results of the two tosses independent? \pause Are they independent if we know which coin was picked?
+    \end{itemize}
+  \end{block}
+  \normalsize
+\end{frame}
+
+\begin{frame}{}
+\vfill
+\begin{center}
+Questions?
+\end{center}
+\vfill
+\end{frame}
+\end{document}

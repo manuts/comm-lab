@@ -1,0 +1,680 @@
+\documentclass[t]{beamer}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{ulem}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\wt}{\operatornamewithlimits{wt}}
+\renewcommand\Re{\operatorname{Re}}
+\renewcommand\Im{\operatorname{Im}}
+
+\mode<presentation>
+{
+  \usetheme{Singapore}
+  %\useoutertheme{infolines} % Showing only current section in navigation
+  \setbeamertemplate{headline}{}  % Empty headline
+  \setbeamertemplate{footline}[frame number]  % Getting rid of footer items except slide number
+  \setbeamercovered{invisible}
+  \beamertemplatenavigationsymbolsempty % Getting rid of navigation bullets at the bottom
+}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+
+\title[EE 703 DMT]{Hypothesis Testing}
+\author[Saravanan V]
+{
+  Saravanan Vijayakumaran\\
+  \href{mailto:sarva@ee.iitb.ac.in}{sarva@ee.iitb.ac.in}
+}
+\institute[IIT Bombay]
+{
+  Department of Electrical Engineering\\
+  Indian Institute of Technology Bombay
+}
+\date{September 2, 2013}
+
+\AtBeginSection[]%
+{%
+\begin{frame}[plain]%
+  \topskip0pt
+  \vspace*{\fill}
+    \begin{center}%
+      \usebeamerfont{section title}\insertsection%
+    \end{center}%
+  \vspace*{\fill}
+\end{frame}%
+}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\section{Basics of Hypothesis Testing}
+%% Frame %%
+\begin{frame}{What is a Hypothesis?}
+  \footnotesize
+  \pause
+  One situation among a set of possible situations
+  \pause
+  \begin{example}[Radar]
+    EM waves are transmitted and the reflections observed.
+      \begin{description}
+        \pause
+        \item[Null Hypothesis] Plane absent
+        \pause
+        \item[Alternative Hypothesis] Plane present
+      \end{description}
+  \end{example}
+  \pause
+  For a given set of observations, either hypothesis may be true.
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{What is Hypothesis Testing?}
+  \footnotesize
+  \begin{itemize}
+    \pause
+    \item A statistical framework for deciding which hypothesis is true
+    \pause
+    \item Under each hypothesis the observations are assumed to have a known distribution
+    \pause
+    \item Consider the case of two hypotheses (binary hypothesis testing)
+    \begin{equation*}
+      \begin{array}{lcl}
+          H_0 & : & \mathbf{Y} \sim P_0 \\
+          H_1 & : & \mathbf{Y} \sim P_1 
+      \end{array}
+    \end{equation*}
+    \pause
+    $\mathbf{Y}$ is the random observation vector belonging to observation set $\Gamma \subseteq \mathbb{R}^n$ for $n \in \mathbb{N}$
+    \pause
+    \item The hypotheses are assumed to occur with given prior probabilities
+      \begin{eqnarray*}
+        \Pr(H_0 \text{ is true}) & = & \pi_0 \\
+        \Pr(H_1 \text{ is true}) & = & \pi_1 
+      \end{eqnarray*}
+      where $\pi_0+\pi_1 =1$.
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Location Testing with Gaussian Error}
+  \footnotesize
+  \begin{itemize}
+    \item Let observation set $\Gamma=\mathbb{R}$ and $\mu >0$
+    \begin{equation*}
+      \begin{array}{lcl}
+          H_0 & : & Y \sim N(-\mu, \sigma^2) \\
+          H_1 & : & Y \sim N(\mu, \sigma^2) 
+      \end{array}
+    \end{equation*}
+    \pause
+    \begin{figure}
+      \centering
+        \begin{tikzpicture}[scale=0.55,transform shape]
+          \begin{axis}[
+                       xmax=5.9,
+                       xmin=-5.9,
+                       ymax=0.3,
+                       ymin=-0.01,
+                       axis lines = middle,
+                       xtick = {-1.5,1.5,5.8},
+                       xticklabels = {$-\mu$,$\mu$,$y$},
+                       ytick=\empty,
+                       x post scale = 2.0
+                      ]
+                \addplot[color=red,very thick,domain=-6:6,samples=100] gnuplot{exp(-(x+1.5)*(x+1.5)/(2*2))/sqrt(2*pi*2)};
+                \addlegendentry{$p_0(y)$}
+                \addplot[color=blue,very thick,domain=-6:6,samples=100] gnuplot{exp(-(x-1.5)*(x-1.5)/(2*2))/sqrt(2*pi*2)};
+                \addlegendentry{$p_1(y)$}
+          \end{axis}
+        \end{tikzpicture}
+    \end{figure}
+    \pause
+    \item Any point in $\Gamma$ can be generated under both $H_0$ and $H_1$
+    \pause 
+    \item What is a \alert{good decision rule} for this hypothesis testing problem \pause which takes the prior probabilities into account?
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{What is a Decision Rule?}
+  \footnotesize
+  \begin{itemize}
+    \pause
+    \item A decision rule for binary hypothesis testing is a partition of $\Gamma$ into $\Gamma_0$ and $\Gamma_1$ such that
+    \begin{equation*}
+      \delta(\mathbf{y}) = \left\{
+      \begin{array}{ll}
+          0 & \text{ if } \mathbf{y} \in \Gamma_0 \\
+          1 & \text{ if } \mathbf{y} \in \Gamma_1 
+      \end{array}
+      \right.
+    \end{equation*}
+    We decide $H_i$ is true when $\delta(\mathbf{y}) = i$ for $i\in\{0,1\}$
+    \pause
+    \item For the location testing with Gaussian error problem, one possible decision rule is 
+      \begin{eqnarray*}
+        \Gamma_0 & = & (-\infty, 0] \\
+        \Gamma_1 & = & (0,\infty) 
+      \end{eqnarray*}
+    \pause
+    and another possible decision rule is
+      \begin{eqnarray*}
+        \Gamma_0 & = & (-\infty, -100) \cup (-50,0) \\
+        \Gamma_1 & = & [-100, -50]\cup[0,\infty) 
+        \pause
+      \end{eqnarray*}
+    \item Given that partitions of the observation set define decision rules, what is the optimal partition?
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Which is the Optimal Decision Rule?}
+  \footnotesize
+  \begin{itemize}
+    \item The optimal decision rule minimizes the probability of decision error
+    \pause
+    \item For the binary hypothesis testing problem of $H_0$ versus $H_1$, the conditional decision error probability given $H_i$ is true is
+      \begin{eqnarray*}
+        P_{e|i}  & = & \Pr\left[ \text{Deciding $H_{1-i}$ is true} \lvert \text{$H_i$ is true} \right] \\
+                 \pause
+                 & = & \Pr\left[ Y \in \Gamma_{1-i} \lvert H_i\right] \\
+                 \pause
+                 & = & 1 - \Pr\left[ Y \in \Gamma_{i} \lvert H_i\right] \\
+                 \pause
+                 & = & 1 - P_{c|i}
+      \end{eqnarray*}
+    \item \pause Probability of decision error is
+      \begin{equation*}
+        P_{e}   =  \pi_0 P_{e|0} + \pi_1 P_{e|1} 
+      \end{equation*}
+    \item \pause Probability of correct decision is
+      \begin{equation*}
+        P_{c}   =  \pi_0 P_{c|0} + \pi_1 P_{c|1}  \pause = 1-P_e
+      \end{equation*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Which is the Optimal Decision Rule?}
+  \footnotesize
+  \begin{itemize}
+    \item Maximizing the probability of correct decision will minimize probability of decision error
+    \item \pause Probability of correct decision is
+      \begin{eqnarray*}
+        P_{c} & = & \pi_0 P_{c|0} + \pi_1 P_{c|1} \\
+        \pause
+              & = & \pi_0 \int_{y \in \Gamma_0} p_0(y)\ dy + \pi_1 \int_{y \in \Gamma_1} p_1(y) \ dy
+      \end{eqnarray*}
+    \item \pause If a point $y$ in $\Gamma$ belongs to $\Gamma_i$, its contribution to $P_c$ is proportional to $\pi_i p_i(y)$
+    \item \pause To maximize $P_c$, we choose the partition $\{\Gamma_0,\Gamma_1\}$ as
+      \begin{eqnarray*}
+        \Gamma_0 & = & \pause \left\{y \in \Gamma \lvert \pi_0 p_0(y) \geq \pi_1 p_1(y) \right\} \\
+        \pause \Gamma_1 & = & \pause \left\{y \in \Gamma \lvert \pi_1 p_1(y) > \pi_0 p_0(y) \right\} 
+      \end{eqnarray*}
+    \item \pause The points $y$ for which $ \pi_0 p_0(y) = \pi_1 p_1(y)$ can be in either $\Gamma_0$ and $\Gamma_1$ \pause (the optimal decision rule is not unique)
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Location Testing with Gaussian Error}
+  \footnotesize
+  \begin{itemize}
+    \item Let $\mu_1 > \mu_0$ and $\pi_0 = \pi_1 = \frac{1}{2}$
+    \begin{equation*}
+      \begin{array}{lcl}
+          H_0 & : & Y = \mu_0 + Z \\
+          H_1 & : & Y = \mu_1 + Z
+      \end{array}
+    \end{equation*}
+    where $Z \sim N(0,\sigma^2)$
+    \pause
+    \begin{figure}
+      \centering
+        \begin{tikzpicture}[scale=0.50,transform shape]
+          \begin{axis}[
+                       xmax=5.9,
+                       xmin=-5.9,
+                       ymax=0.3,
+                       ymin=-0.01,
+                       axis lines = middle,
+                       xtick = {-0.5,1.5,5.8},
+                       xticklabels = {$\mu_0$,$\mu_1$,$y$},
+                       ytick=\empty,
+                       x post scale = 2.0
+                      ]
+                \addplot[color=red,very thick,domain=-6:6,samples=100] gnuplot{exp(-(x+0.5)*(x+0.5)/(2*2))/sqrt(2*pi*2)};
+                \addlegendentry{$p_0(y)$}
+                \addplot[color=blue,very thick,domain=-6:6,samples=100] gnuplot{exp(-(x-1.5)*(x-1.5)/(2*2))/sqrt(2*pi*2)};
+                \addlegendentry{$p_1(y)$}
+    
+          \end{axis}
+        \end{tikzpicture}
+    \end{figure}
+    \pause
+    \begin{eqnarray*}
+    p_0(y) & = & \pause \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(y-\mu_0)^2}{2\sigma^2}} \\
+    \pause
+    p_1(y) & = & \pause \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(y-\mu_1)^2}{2\sigma^2}} 
+    \end{eqnarray*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Location Testing with Gaussian Error}
+  \footnotesize
+  \begin{itemize}
+    \item Optimal decision rule is given by the partition $\{\Gamma_0,\Gamma_1\}$
+      \begin{eqnarray*}
+        \Gamma_0 & = & \left\{y \in \Gamma \lvert \pi_0 p_0(y) \geq \pi_1 p_1(y) \right\} \\
+        \Gamma_1 & = & \left\{y \in \Gamma \lvert \pi_1 p_1(y) > \pi_0 p_0(y) \right\} 
+      \end{eqnarray*}
+    \item \pause For $\pi_0 = \pi_1 = \frac{1}{2}$
+      \begin{eqnarray*}
+        \Gamma_0 & = & \pause \left\{y \in \Gamma \bigg| y \leq \frac{\mu_1+\mu_0}{2} \right\} \\
+        \Gamma_1 & = & \pause \left\{y \in \Gamma \bigg| y >  \frac{\mu_1+\mu_0}{2} \right\} 
+      \end{eqnarray*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Location Testing with Gaussian Error}
+  \footnotesize
+  \begin{figure}
+  \centering
+    \begin{tikzpicture}[scale=0.50,transform shape]
+      \begin{axis}[
+                   xmax=5.9,
+                   xmin=-5.9,
+                   ymax=0.3,
+                   ymin=-0.01,
+                   axis lines = middle,
+                   xtick = {-0.5,0.5,1.5,5.8},
+                   xticklabels = {$\mu_0$,$\frac{\mu_0+\mu_1}{2}$,$\mu_1$,$y$},
+                   ytick=\empty,
+                   x post scale = 2.0
+                  ]
+            \addplot[color=red,fill=red,fill opacity=0.5,area legend,very thick,domain=0.5:6,samples=100] gnuplot{exp(-(x+0.5)*(x+0.5)/(2*2))/sqrt(2*pi*2)} \closedcycle;
+            \addlegendentry{$P_{e|0}$}
+            \addplot[color=blue,fill=blue,fill opacity=0.5,area legend,very thick,domain=-6:0.5,samples=100] gnuplot{exp(-(x-1.5)*(x-1.5)/(2*2))/sqrt(2*pi*2)} \closedcycle;
+            \addlegendentry{$P_{e|1}$}
+            \addplot[color=blue,very thick,domain=-6:6,samples=100] gnuplot{exp(-(x-1.5)*(x-1.5)/(2*2))/sqrt(2*pi*2)};
+            \addplot[color=red,very thick,domain=-6:6,samples=100] gnuplot{exp(-(x+0.5)*(x+0.5)/(2*2))/sqrt(2*pi*2)};
+      \end{axis}
+    \end{tikzpicture}
+    \pause
+    \begin{equation*}
+      P_{e|0} = \pause \Pr\left[ Y > \frac{\mu_0+\mu_1}{2} \bigg| H_0\right] = \pause Q\left(\frac{\mu_1 - \mu_0}{2\sigma}\right)
+    \end{equation*}
+    \pause
+    \begin{equation*}
+      P_{e|1} = \pause \Pr\left[ Y \leq \frac{\mu_0+\mu_1}{2} \bigg| H_1\right] = \pause \Phi\left(\frac{\mu_0 - \mu_1}{2\sigma}\right) = \pause  Q\left(\frac{\mu_1 - \mu_0}{2\sigma}\right)
+    \end{equation*}
+    \pause
+    \begin{equation*}
+      P_{e}   = \pause \pi_0 P_{e|0} + \pi_1 P_{e|1} =\pause Q\left(\frac{\mu_1 - \mu_0}{2\sigma}\right)
+    \end{equation*}
+    \pause
+    This $P_e$ is for $\pi_0 = \pi_1 = \frac{1}{2}$
+  \end{figure}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Location Testing with Gaussian Error}
+  \footnotesize
+  \begin{itemize}
+    \item Suppose $\pi_0 \neq \pi_1$
+    \item \pause Optimal decision rule is still given by the partition $\{\Gamma_0,\Gamma_1\}$
+      \begin{eqnarray*}
+        \Gamma_0 & = & \left\{y \in \Gamma \lvert \pi_0 p_0(y) \geq \pi_1 p_1(y) \right\} \\
+        \Gamma_1 & = & \left\{y \in \Gamma \lvert \pi_1 p_1(y) > \pi_0 p_0(y) \right\} 
+      \end{eqnarray*}
+    \item \pause The partitions specialized to this problem are
+      \begin{eqnarray*}
+        \Gamma_0 & = & \pause \left\{y \in \Gamma \bigg| y \leq \frac{\mu_1+\mu_0}{2} + \frac{\sigma^2}{(\mu_1-\mu_0)}\log \frac{\pi_0}{\pi_1}\right\} \\
+        \pause
+        \Gamma_1 & = & \pause \left\{y \in \Gamma \bigg| y > \frac{\mu_1+\mu_0}{2} + \frac{\sigma^2}{(\mu_1-\mu_0)}\log \frac{\pi_0}{\pi_1}\right\} 
+      \end{eqnarray*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Location Testing with Gaussian Error}
+  \footnotesize
+  Suppose $\pi_0 = 0.6$ and $\pi_1 = 0.4$
+  \begin{equation*}
+     \tau = \frac{\mu_1+\mu_0}{2} + \frac{\sigma^2}{(\mu_1-\mu_0)}\log \frac{\pi_0}{\pi_1} \pause = \frac{\mu_1+\mu_0}{2} + \frac{0.4054\sigma^2}{(\mu_1-\mu_0)}
+  \end{equation*}
+  \pause
+  \begin{figure}
+  \centering
+    \begin{tikzpicture}[scale=0.70,transform shape]
+      \begin{axis}[
+                   xmax=5.9,
+                   xmin=-5.9,
+                   ymax=0.3,
+                   ymin=-0.01,
+                   axis lines = middle,
+                   xtick = {-0.5,0.9054,1.5,5.8},
+                   xticklabels = {$\mu_0$,$\tau$,$\mu_1$,$y$},
+                   ytick=\empty,
+                   x post scale = 2.0
+                  ]
+            \addplot[color=red,fill=red,fill opacity=0.5,area legend,very thick,domain=0.9054:6,samples=100] gnuplot{exp(-(x+0.5)*(x+0.5)/(2*2))/sqrt(2*pi*2)} \closedcycle;
+            \addlegendentry{$P_{e|0}$}
+            \addplot[color=blue,fill=blue,fill opacity=0.5,area legend,very thick,domain=-6:0.9054,samples=100] gnuplot{exp(-(x-1.5)*(x-1.5)/(2*2))/sqrt(2*pi*2)} \closedcycle;
+            \addlegendentry{$P_{e|1}$}
+            \addplot[color=red,very thick,domain=-6:6,samples=100] gnuplot{exp(-(x+0.5)*(x+0.5)/(2*2))/sqrt(2*pi*2)};
+            \addlegendentry{$p_0(y)$}
+            \addplot[color=blue,very thick,domain=-6:6,samples=100] gnuplot{exp(-(x-1.5)*(x-1.5)/(2*2))/sqrt(2*pi*2)};
+            \addlegendentry{$p_1(y)$}
+      \end{axis}
+    \end{tikzpicture}
+  \end{figure}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Location Testing with Gaussian Error}
+  \footnotesize
+  Suppose $\pi_0 = 0.6$ and $\pi_1 = 0.4$
+  \begin{equation*}
+     \tau = \frac{\mu_1+\mu_0}{2} + \frac{\sigma^2}{(\mu_1-\mu_0)}\log \frac{\pi_0}{\pi_1} = \frac{\mu_1+\mu_0}{2} + \frac{0.4054\sigma^2}{(\mu_1-\mu_0)}
+  \end{equation*}
+  \begin{figure}
+  \centering
+    \begin{tikzpicture}[scale=0.70,transform shape]
+      \begin{axis}[
+                   xmax=5.9,
+                   xmin=-5.9,
+                   ymax=0.3,
+                   ymin=-0.01,
+                   axis lines = middle,
+                   xtick = {-0.5,1.5,5.8},
+                   xticklabels = {$\mu_0$,$\mu_1$,$y$},
+                   ytick=\empty,
+                   x post scale = 2.0,
+                   extra x ticks={0.9054},
+                   extra x tick style={
+                     xticklabel pos = left,
+                     xticklabels = {$\tau$},
+                     xmajorgrids = true
+                   }
+                  ]
+            \addplot[color=red,very thick,domain=-6:6,samples=100] gnuplot{0.6*exp(-(x+0.5)*(x+0.5)/(2*2))/sqrt(2*pi*2)};
+            \addlegendentry{$\pi_0p_0(y)$}
+            \addplot[color=blue,very thick,domain=-6:6,samples=100] gnuplot{0.4*exp(-(x-1.5)*(x-1.5)/(2*2))/sqrt(2*pi*2)};
+            \addlegendentry{$\pi_1p_1(y)$}
+      \end{axis}
+    \end{tikzpicture}
+  \end{figure}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Location Testing with Gaussian Error}
+  \footnotesize
+  Suppose $\pi_0 = 0.4$ and $\pi_1 = 0.6$
+  \begin{equation*}
+     \tau = \frac{\mu_1+\mu_0}{2} + \frac{\sigma^2}{(\mu_1-\mu_0)}\log \frac{\pi_0}{\pi_1} \pause = \frac{\mu_1+\mu_0}{2} - \frac{0.4054\sigma^2}{(\mu_1-\mu_0)}
+  \end{equation*}
+  \pause
+  \begin{figure}
+  \centering
+    \begin{tikzpicture}[scale=0.70,transform shape]
+      \begin{axis}[
+                   xmax=5.9,
+                   xmin=-5.9,
+                   ymax=0.3,
+                   ymin=-0.01,
+                   axis lines = middle,
+                   xtick = {-0.5,0.09453,1.5,5.8},
+                   xticklabels = {$\mu_0$,$\tau$,$\mu_1$,$y$},
+                   ytick=\empty,
+                   x post scale = 2.0
+                  ]
+            \addplot[color=red,fill=red,fill opacity=0.5,area legend,very thick,domain=0.09453:6,samples=100] gnuplot{exp(-(x+0.5)*(x+0.5)/(2*2))/sqrt(2*pi*2)} \closedcycle;
+            \addlegendentry{$P_{e|0}$}
+            \addplot[color=blue,fill=blue,fill opacity=0.5,area legend,very thick,domain=-6:0.09453,samples=100] gnuplot{exp(-(x-1.5)*(x-1.5)/(2*2))/sqrt(2*pi*2)} \closedcycle;
+            \addlegendentry{$P_{e|1}$}
+            \addplot[color=red,very thick,domain=-6:6,samples=100] gnuplot{exp(-(x+0.5)*(x+0.5)/(2*2))/sqrt(2*pi*2)};
+            \addlegendentry{$p_0(y)$}
+            \addplot[color=blue,very thick,domain=-6:6,samples=100] gnuplot{exp(-(x-1.5)*(x-1.5)/(2*2))/sqrt(2*pi*2)};
+            \addlegendentry{$p_1(y)$}
+      \end{axis}
+    \end{tikzpicture}
+  \end{figure}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Location Testing with Gaussian Error}
+  \footnotesize
+  Suppose $\pi_0 = 0.4$ and $\pi_1 = 0.6$
+  \begin{equation*}
+     \tau = \frac{\mu_1+\mu_0}{2} + \frac{\sigma^2}{(\mu_1-\mu_0)}\log \frac{\pi_0}{\pi_1} \pause = \frac{\mu_1+\mu_0}{2} - \frac{0.4054\sigma^2}{(\mu_1-\mu_0)}
+  \end{equation*}
+  \pause
+  \begin{figure}
+  \centering
+    \begin{tikzpicture}[scale=0.70,transform shape]
+      \begin{axis}[
+                   xmax=5.9,
+                   xmin=-5.9,
+                   ymax=0.3,
+                   ymin=-0.01,
+                   axis lines = middle,
+                   xtick = {-0.5,1.5,5.8},
+                   xticklabels = {$\mu_0$,$\mu_1$,$y$},
+                   ytick=\empty,
+                   x post scale = 2.0,
+                   extra x ticks={0.09453},
+                   extra x tick style={
+                     xticklabel pos = left,
+                     xticklabels = {$\tau$},
+                     xmajorgrids = true
+                   }
+                  ]
+            \addplot[color=red,very thick,domain=-6:6,samples=100] gnuplot{0.4*exp(-(x+0.5)*(x+0.5)/(2*2))/sqrt(2*pi*2)};
+            \addlegendentry{$\pi_0p_0(y)$}
+            \addplot[color=blue,very thick,domain=-6:6,samples=100] gnuplot{0.6*exp(-(x-1.5)*(x-1.5)/(2*2))/sqrt(2*pi*2)};
+            \addlegendentry{$\pi_1p_1(y)$}
+      \end{axis}
+    \end{tikzpicture}
+  \end{figure}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{$M$-ary Hypothesis Testing}
+  \footnotesize
+  \begin{itemize}
+    \item $M$ hypotheses with prior probabilities $\pi_i$, $i=1,\ldots,M$
+      \begin{equation*}
+        \begin{array}{ccc}
+            H_1 & : & \mathbf{Y} \sim P_1 \\
+            H_2 & : & \mathbf{Y} \sim P_2 \\
+            \vdots &   &  \vdots          \\
+            H_M & : & \mathbf{Y} \sim P_M   
+        \end{array}
+      \end{equation*}
+    \item \pause A decision rule for $M$-ary hypothesis testing is a partition of $\Gamma$ into $M$ disjoint regions $\{\Gamma_i | i=1,\ldots,M\}$ such that
+    \begin{equation*}
+      \delta(\mathbf{y}) = i  \text{ if } \mathbf{y} \in \Gamma_i 
+    \end{equation*}
+    We decide $H_i$ is true when $\delta(\mathbf{y}) = i$ for $i\in\{1,\ldots,M\}$
+    \item \pause Minimum probability of error rule is
+    \begin{equation*}
+      \delta_{\text{MPE}}(\mathbf{y}) = \arg\max_{1\leq i \leq M} \pi_i p_i(\mathbf{y})
+    \end{equation*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Maximum A Posteriori Decision Rule}
+  \footnotesize
+  \begin{itemize}
+    \item The a posteriori probability of $H_i$ being true given observation $\mathbf{y}$ is
+      \begin{equation*}
+        P\left[H_i \text{ is true}\bigg|\mathbf{y}\right] = \frac{\pi_i p_i(\mathbf{y})}{p(\mathbf{y})}
+      \end{equation*}
+    \item \pause The MAP decision rule is given by
+    \begin{equation*}
+      \delta_{\text{MAP}}(\mathbf{y}) = \pause \arg\max_{1\leq i \leq M} P\left[H_i \text{ is true}\bigg|\mathbf{y}\right] \pause = \delta_{\text{MPE}}(\mathbf{y})
+    \end{equation*}
+    \pause
+    \centering
+    \alert{MAP decision rule = MPE decision rule}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Maximum Likelihood Decision Rule}
+  \footnotesize
+  \begin{itemize}
+    \item The ML decision rule is given by
+    \begin{equation*}
+      \delta_{\text{ML}}(\mathbf{y}) = \pause \arg\max_{1\leq i \leq M} p_i(\mathbf{y})
+    \end{equation*}
+    \item \pause If the $M$ hypotheses are equally likely, $\pi_i = \pause \frac{1}{M}$ 
+    \item \pause The MPE decision rule is then given by
+    \begin{equation*}
+      \delta_{\text{MPE}}(\mathbf{y}) = \pause \arg\max_{1\leq i \leq M} \pi_i p_i(\mathbf{y}) = \pause \delta_{\text{ML}} (\mathbf{y})
+    \end{equation*}
+    \pause
+    \alert{For equal priors, ML decision rule = MPE decision rule}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+\section{Irrelevant Statistics}
+\begin{frame}{Irrelevant Statistics}
+  \footnotesize
+  \begin{itemize}
+    \item In this context, the term statistic means an observation
+    \pause
+    \item For a given hypothesis testing problem, all the observations may not be useful
+    \pause
+  \end{itemize}
+  \begin{example}[Irrelevant Statistic]
+    \begin{equation*}
+      \mathbf{Y} = \begin{bmatrix} Y_1 & Y_2 \end{bmatrix}
+    \end{equation*}
+    \pause
+    \begin{equation*}
+      \begin{array}{lll}
+        H_1 : & Y_1 = A+N_1,& Y_2 = N_2 \\
+        H_0 : & Y_1 = N_1,& Y_2 = N_2 
+      \end{array}
+    \end{equation*}
+    where $A >0$, $N_1 \sim N(0,\sigma^2)$, $N_2 \sim N(0,\sigma^2)$.
+    \begin{itemize}
+      \item \pause If $N_1$ and $N_2$ are independent, $Y_2$ is irrelevant.
+      \item \pause If $N_1$ and $N_2$ are correlated, $Y_2$ is relevant.
+    \end{itemize}
+  \end{example}
+  \begin{itemize}
+    \item \pause Need a method to recognize irrelevant components of the observations
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Characterizing an Irrelevant Statistic}
+  \footnotesize
+  \begin{theorem}
+    For $M$-ary hypothesis testing using an observation $\mathbf{Y} = \begin{bmatrix} \mathbf{Y}_1 & \mathbf{Y}_2\end{bmatrix}$, \pause the statistic $\mathbf{Y}_2$ is irrelevant if the conditional distribution of $\mathbf{Y}_2$, \pause given $\mathbf{Y}_1$ and $H_i$, \pause is independent of $i$. \pause In terms of densities, the condition for irrelevance is
+    \begin{equation*}
+      p(\mathbf{y}_2|\mathbf{y}_1,H_i) = \pause p(\mathbf{y}_2|\mathbf{y}_1) \ \ \forall i.
+    \pause
+    \end{equation*}
+  \end{theorem}
+  {\usebeamercolor[fg]{frametitle}Proof}
+    \begin{eqnarray*}
+      \delta_{\text{MPE}}(\mathbf{y}) & = & \pause \arg\max_{1\leq i \leq M} \pi_i p_i(\mathbf{y}) \pause = \arg\max_{1\leq i \leq M} \pi_i p(\mathbf{y}|H_i) \\
+      \pause p(\mathbf{y}|H_i) & = & \pause p(\mathbf{y}_1,\mathbf{y}_2|H_i) = \pause p(\mathbf{y}_2|\mathbf{y}_1,H_i)p(\mathbf{y}_1|H_i) \\
+                        & = & \pause p(\mathbf{y}_2|\mathbf{y}_1)p(\mathbf{y}_1|H_i) \\ \pause
+      \delta_{\text{MPE}}(\mathbf{y}) & = & \pause \arg\max_{1\leq i \leq M} \pi_i p(\mathbf{y}_2|\mathbf{y}_1) p(\mathbf{y}_1|H_i) \pause = \arg\max_{1\leq i \leq M} \pi_i p(\mathbf{y}_1|H_i)
+    \end{eqnarray*}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Example of an Irrelevant Statistic}
+  \footnotesize
+  \begin{example}[Independent Noise]
+    \begin{equation*}
+      \mathbf{Y} = \begin{bmatrix} Y_1 & Y_2 \end{bmatrix}
+    \end{equation*}
+    \pause
+    \begin{equation*}
+      \begin{array}{lll}
+        H_1 : & Y_1 = A+N_1,& Y_2 = N_2 \\
+        H_0 : & Y_1 = N_1,& Y_2 = N_2 
+      \end{array}
+    \end{equation*}
+    where $A >0$, $N_1 \sim N(0,\sigma^2)$, $N_2 \sim N(0,\sigma^2), N_1 \perp N_2$.
+    \pause
+    \begin{eqnarray*}
+      p(\mathbf{y}_2|\mathbf{y}_1,H_0) & = & \pause p(\mathbf{y}_2) \\
+      \pause
+      p(\mathbf{y}_2|\mathbf{y}_1,H_1) & = & \pause p(\mathbf{y}_2) 
+    \end{eqnarray*}
+  \end{example}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Example of a Relevant Statistic}
+  \footnotesize
+  \begin{example}[Correlated Noise]
+    \begin{equation*}
+      \mathbf{Y} = \begin{bmatrix} Y_1 & Y_2 \end{bmatrix}^T
+    \end{equation*}
+    \pause
+    \begin{equation*}
+      \begin{array}{lll}
+        H_1 : & Y_1 = A+N_1,& Y_2 = N_2 \\
+        H_0 : & Y_1 = N_1,& Y_2 = N_2 
+      \end{array}
+    \end{equation*}
+    where $A >0$, $N_1 \sim N(0,\sigma^2)$, $N_2 \sim N(0,\sigma^2)$, \pause $\mathbf{C}_Y = \sigma^2 \begin{bmatrix} 1 & \rho \\ \rho & 1 \end{bmatrix}$
+    \pause
+    \begin{eqnarray*}
+      p(y_2|y_1,H_0) & = & \pause \frac{1}{\sqrt{2\pi(1-\rho^2) \sigma^2}} e^{-\frac{(y_2-\rho y_1)^2}{2(1-\rho^2)\sigma^2}},\\ 
+      \pause
+      p(y_2|y_1,H_1) & = & \pause \frac{1}{\sqrt{2\pi(1-\rho^2) \sigma^2}} e^{-\frac{[y_2-\rho (y_1-A)]^2}{2(1-\rho^2)\sigma^2}}
+    \end{eqnarray*}
+  \end{example}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{}
+\vfill
+\begin{center}
+Thanks for your attention
+\end{center}
+\vfill
+\end{frame}
+
+\end{document}

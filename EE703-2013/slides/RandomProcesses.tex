@@ -1,0 +1,297 @@
+\documentclass[t]{beamer}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\wt}{\operatornamewithlimits{wt}}
+\newcommand{\cov}{\operatornamewithlimits{cov}}
+\newcommand{\var}{\operatornamewithlimits{var}}
+
+\mode<presentation>
+{
+  \usetheme{Singapore}
+  %\useoutertheme{infolines} % Showing only current section in navigation
+  \setbeamertemplate{headline}{}  % Empty headline
+  \setbeamertemplate{footline}[frame number]  % Getting rid of footer items except slide number
+  \setbeamercovered{invisible}
+  \beamertemplatenavigationsymbolsempty % Getting rid of navigation bullets at the bottom
+}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+
+\title[EE 703 DMT]{Random Processes}
+\author[Saravanan V]
+{
+  Saravanan Vijayakumaran\\
+  \href{mailto:sarva@ee.iitb.ac.in}{sarva@ee.iitb.ac.in}
+}
+\institute[IIT Bombay]
+{
+  Department of Electrical Engineering\\
+  Indian Institute of Technology Bombay
+}
+\date{August 12, 2013}
+
+\AtBeginSection[]%
+{%
+\begin{frame}[plain]%
+  \topskip0pt
+  \vspace*{\fill}
+    \begin{center}%
+      \usebeamerfont{section title}\insertsection%
+    \end{center}%
+  \vspace*{\fill}
+\end{frame}%
+}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Random Process}
+  \footnotesize
+  \pause
+  \begin{definition}[]
+  An indexed collection of random variables $\{X(t):t \in \mathcal{T}\}$.
+  \end{definition}
+  \begin{description}
+    \pause
+    \item[Discrete-time Random Process] $\mathcal{T} = \pause \mathbb{Z} \text{ or } \mathbb{N}$
+    \pause
+    \item[Continuous-time Random Process] $\mathcal{T} = \pause \mathbb{R}$
+  \end{description}
+  \pause
+  \begin{block}{Statistics}
+  Mean function
+  \pause
+    \begin{equation*}
+      m_X(t) = \pause E[X(t)]
+    \end{equation*}
+  \pause
+  Autocorrelation function
+  \pause
+    \begin{equation*}
+      R_X(t_1,t_2) = \pause E[X(t_1)X^*(t_2)]
+    \end{equation*}
+  \pause
+  Autocovariance function
+  \pause
+    \begin{equation*}
+      C_X(t_1,t_2) = \pause E\left[\left(X(t_1)-m_X(t_1)\right)\left(X(t_2)-m_X(t_2)\right)^*\right]
+    \end{equation*}
+  \end{block}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Stationary Random Process}
+  \footnotesize
+  \pause
+  \begin{definition}[]
+    A random process which is statistically indistinguishable from a delayed version of itself.
+  \end{definition}
+  \pause
+  \begin{block}{Properties}
+  \begin{itemize}
+    \item For any $n \in \mathbb{N}$, $(t_1,\ldots,t_n) \in \mathbb{R}^n$ and $\tau \in \mathbb{R}$, $\left(X(t_1),\ldots,X(t_n)\right)$ has the same joint distribution as $\left(X(t_1-\tau),\ldots,X(t_n-\tau)\right)$.
+     \item \pause For $n = 1$, we have
+     \begin{equation*}
+       F_{X(t)}(x) = F_{X(t+\tau)}(x)
+     \end{equation*}
+      for all $t$ and $\tau$. \pause The first order distribution is independent of time.
+    \item \pause $m_X(t) = \pause m_X(0)$
+    \item \pause For $n = 2$ and $\tau = -t_1$, we have
+       \begin{equation*}
+         F_{X(t_1), X(t_2)}(x_1, x_2) = F_{X(0),X(t_2-t_1)}(x_1, x_2)
+       \end{equation*}
+    for all $t_1$ and $t_2$. \pause The second order distribution depends only on $t_2 - t_1$.
+    \item \pause $R_X(t_1,t_2) = \pause R_X(t_1-\tau,t_2-\tau) = \pause R_X(t_1-t_2,0)$
+  \end{itemize}
+  \end{block}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Wide Sense Stationary Random Process}
+  \footnotesize
+  \pause
+  \begin{definition}[]
+    A random process is WSS if
+    \begin{eqnarray*}
+      m_X(t) & = & m_X(0) \ \ \ \ \ \text{ for all $t$ and }\\
+      \pause
+      R_X(t_1,t_2) & = & R_X(t_1-t_2,0) \ \ \ \ \ \text{for all $t_1,t_2$.} \\
+    \end{eqnarray*}
+    \pause
+    Autocorrelation function is expressed as a function of $\tau = t_1-t_2$ as $R_X(\tau)$.
+  \end{definition}
+  \pause
+  \begin{definition}[Power Spectral Density of a WSS Process]
+    \pause
+    The Fourier transform of the autocorrelation function.
+    \pause
+    \begin{equation*}
+      S_X(f) = \mathcal{F}\left(R_X(\tau)\right)
+    \end{equation*}
+  \end{definition}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Energy Spectral Density}
+  \footnotesize
+  \pause
+  \begin{definition}[]
+    For a signal $s(t)$, the energy spectral density is defined as
+    \begin{equation*}
+      E_s(f) = \lvert S(f) \rvert^2.
+    \end{equation*}
+  \end{definition}
+  \pause
+  \begin{block}{Motivation}
+    \pause
+    Pass $s(t)$ through an ideal narrowband filter with response
+    \begin{equation*}
+    H_{f_0}(f) = \left\{
+          \begin{array}{rr}
+          1, & \text{if } f_0 - \frac{\Delta f}{2} < f < f_0 + \frac{\Delta f}{2} \\
+          0, & \text{otherwise} 
+          \end{array}
+        \right.
+    \end{equation*}
+    \pause
+    Output is $Y(f) = S(f)H_{f_0}(f)$. \pause  Energy in output is given by
+    \begin{equation*}
+      \int_{-\infty}^{\infty} \lvert Y(f) \rvert^2 \ df = \pause \int_{f_0-\frac{\Delta f}{2}}^{f_0+\frac{\Delta f}{2}} \lvert S(f) \rvert^2 \ df  \approx  \pause\lvert S(f_0) \rvert^2 \Delta f 
+    \end{equation*}
+  \end{block}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Power Spectral Density}
+  \footnotesize
+  \pause
+  \begin{block}{Motivation}
+    PSD characterizes spectral content of random signals which have infinite energy but finite power 
+  \end{block}
+    \pause
+    \begin{example}[Finite-power infinite-energy signal] 
+    \pause 
+    Binary PAM signal
+      \begin{equation*}
+      x(t) = \sum_{n=-\infty}^{\infty} b_n p(t-nT)
+      \end{equation*}
+    \end{example}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Power Spectral Density of a Realization}
+  \footnotesize
+    Time windowed realizations have finite energy
+    \begin{eqnarray*}
+      x_{T_o}(t) & = & x(t)I_{[-\frac{T_o}{2},\frac{T_o}{2}]}(t) \\
+      \pause
+      S_{T_o}(f) & = & \mathcal{F}(x_{T_o}(t)) \\
+      \pause
+      \hat{S}_x(f) & = & \frac{\lvert S_{T_o}(f) \rvert^2}{T_o} \ \ \ \ \text{ (PSD Estimate)}
+    \end{eqnarray*}
+  \pause
+  \begin{definition}[PSD of a realization]
+    \begin{equation*}
+    \bar{S}_x(f) = \lim_{T_o \rightarrow \infty} \frac{\lvert S_{T_o}(f) \rvert^2}{T_o}
+    \end{equation*}
+  \end{definition}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Autocorrelation Function of a Realization}
+  \footnotesize
+  \pause
+  \begin{block}{Motivation}
+    \begin{eqnarray*}
+     \hat{S}_x(f)  =  \frac{\lvert S_{T_o}(f) \rvert^2}{T_o} & \xrightleftharpoons{} & \pause\frac{1}{T_o} \int_{-\infty}^{\infty} x_{T_o}(u)x_{T_o}^*(u-\tau) \ du \\
+     \pause
+     &  & =  \frac{1}{T_o} \int_{-\frac{T_o}{2}}^{\frac{T_o}{2}} x_{T_o}(u)x_{T_o}^*(u-\tau) \ du \\
+     \pause
+     &  & = \hat{R}_x(\tau) \ \ \ \ \ \ \text{(Autocorrelation Estimate)}
+    \end{eqnarray*}
+  \end{block}
+  \pause
+  \begin{definition}[Autocorrelation function of a realization]
+    \begin{equation*}
+      \bar{R}_x(\tau) = \lim_{T_o \rightarrow \infty} \frac{1}{T_o} \int_{-\frac{T_o}{2}}^{\frac{T_o}{2}} x_{T_o}(u)x_{T_o}^*(u-\tau) \ du 
+    \end{equation*}
+  \end{definition}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{The Two Definitions of Power Spectral Density}
+  \footnotesize
+  \begin{definition}[PSD of a WSS Process]
+    \pause
+    \begin{equation*}
+      S_X(f) = \mathcal{F}\left(R_X(\tau)\right)
+    \end{equation*}
+    where $R_X(\tau) = E\left[ X(t)X^*(t-\tau)\right]$.
+  \end{definition}
+  \pause
+  \begin{definition}[PSD of a realization]
+    \begin{equation*}
+    \bar{S}_x(f) = \mathcal{F}\left(\bar{R}_x(\tau)\right)
+    \end{equation*}
+    where
+    \begin{equation*}
+      \bar{R}_x(\tau) = \lim_{T_o \rightarrow \infty} \frac{1}{T_o} \int_{-\frac{T_o}{2}}^{\frac{T_o}{2}} x_{T_o}(u)x_{T_o}^*(u-\tau) \ du 
+    \end{equation*}
+  \end{definition}
+  \pause
+  \begin{center}
+    Both are equal for ergodic processes
+  \end{center}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Ergodic Process}
+  \footnotesize
+  \pause
+  \begin{definition}[]
+    A stationary random process is ergodic if time averages equal ensemble averages.
+  \end{definition}
+  \pause
+  \begin{itemize}
+    \item Ergodic in mean
+      \begin{equation*}
+        \lim_{T\rightarrow\infty} \frac{1}{T} \int_{-\frac{T}{2}}^{\frac{T}{2}} x(t) \ dt = E[X(t)]
+      \end{equation*}
+    \pause
+    \item Ergodic in autocorrelation
+      \begin{equation*}
+        \lim_{T\rightarrow\infty} \frac{1}{T} \int_{-\frac{T}{2}}^{\frac{T}{2}} x(t)x^*(t-\tau) \ dt = R_X(\tau)
+      \end{equation*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{}
+\vfill
+\begin{center}
+Thanks for your attention
+\end{center}
+\vfill
+\end{frame}
+
+
+\end{document}

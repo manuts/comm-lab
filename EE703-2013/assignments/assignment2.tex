@@ -1,0 +1,46 @@
+\documentclass[10pt]{report}
+\usepackage{./EE703handout}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{decorations.pathmorphing}
+\usepackage{mathtools}
+\usepackage{subfig}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{verbatim}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\setlength{\textheight}{9.4in}     % 9.4in
+\setlength{\textwidth}{6.3in}      % 6.3in
+\setlength{\parindent}{0mm}
+%\setlength{\parskip}{3mm}
+\setlength{\oddsidemargin}{0.0in}  % 0.0in
+\setlength{\topmargin}{-0.0in}  % 0.0in
+\setlength{\headheight}{0.0in}  % 0.0in
+
+
+\begin{document}
+\handout{}{Due Date: September 4, 2013}{Assignment 2}
+  The Python program located at \url{https://gist.github.com/avras/b187068a995a27fc8569} implements the following decision rule for the 3-repetition code. 
+    \begin{eqnarray*}
+      \Gamma_0 & = & \left\{ \mathbf{y} \in \Gamma \bigg|  d(\mathbf{y}, 000) \leq   d(\mathbf{y}, 111)\right\} \\
+      \Gamma_1 & = & \left\{ \mathbf{y} \in \Gamma \bigg|  d(\mathbf{y}, 000) >   d(\mathbf{y}, 111)\right\}
+    \end{eqnarray*}
+It can be run using the command \texttt{python rep.py} on a system with Python installed. The lists \texttt{ZeroPartition} and \texttt{OnePartition} correspond to $\Gamma_0$ and $\Gamma_1$ respectively.
+\begin{enumerate}
+  \item Change the program to implement the following decision rule.
+    \begin{eqnarray*}
+      \Gamma_0 & = & \left\{ \mathbf{y} \in \Gamma \bigg|  d(\mathbf{y}, 000) <   d(\mathbf{y}, 111)\right\} \\
+      \Gamma_1 & = & \left\{ \mathbf{y} \in \Gamma \bigg|  d(\mathbf{y}, 000) \geq   d(\mathbf{y}, 111)\right\}
+    \end{eqnarray*}
+    Do the partitions change? Why or why not?
+  \item Repeat the previous exercise for $N=4$ i.e.~the 4-repetition code. Do the partitions change? Why or why not?
+  \item Change the program to implement the optimal decision rule given by the following partition.
+    \begin{eqnarray*}
+      \Gamma_0 & = & \left\{ \mathbf{y} \in \Gamma \bigg| \pi_1 P(\mathbf{Y} = \mathbf{y} | X = 1)  \leq  \pi_0 P(\mathbf{Y} = \mathbf{y} | X = 0)\right\} \\
+      \Gamma_1 & = & \left\{ \mathbf{y} \in \Gamma \bigg| \pi_1 P(\mathbf{Y} = \mathbf{y} | X = 1)  >  \pi_0 P(\mathbf{Y} = \mathbf{y} | X = 0)\right\}
+    \end{eqnarray*}
+    The probabilities $\pi_0$ and $\pi_1$ are represented by the variables \texttt{probZero} and \texttt{probOne} respectively. Verify that the optimal decision rule is the same as the minimum distance decoder when $\pi_0 = \frac{1}{2}$.
+  \item For $N = 3$, find a value of $\pi_0$ such that $\Gamma_1 = \{111\}$.
+\end{enumerate}
+There is no hard copy submission for this assignment. You will be required to upload the program files in Moodle.
+\end{document}

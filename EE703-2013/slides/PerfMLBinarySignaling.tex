@@ -1,0 +1,321 @@
+\documentclass[t]{beamer}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{ulem}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\wt}{\operatornamewithlimits{wt}}
+\newcommand{\var}{\operatornamewithlimits{var}}
+\renewcommand\Re{\operatorname{Re}}
+\renewcommand\Im{\operatorname{Im}}
+
+\mode<presentation>
+{
+  \usetheme{Singapore}
+  %\useoutertheme{infolines} % Showing only current section in navigation
+  \setbeamertemplate{headline}{}  % Empty headline
+  \setbeamertemplate{footline}[frame number]  % Getting rid of footer items except slide number
+  \setbeamercovered{invisible}
+  \beamertemplatenavigationsymbolsempty % Getting rid of navigation bullets at the bottom
+}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+
+\title[EE 703 DMT]{Performance of ML Receiver for Binary Signaling}
+\author[Saravanan V]
+{
+  Saravanan Vijayakumaran\\
+  \href{mailto:sarva@ee.iitb.ac.in}{sarva@ee.iitb.ac.in}
+}
+\institute[IIT Bombay]
+{
+  Department of Electrical Engineering\\
+  Indian Institute of Technology Bombay
+}
+\date{October 7, 2013}
+
+\AtBeginSection[]%
+{%
+\begin{frame}[plain]%
+  \topskip0pt
+  \vspace*{\fill}
+    \begin{center}%
+      \usebeamerfont{section title}\insertsection%
+    \end{center}%
+  \vspace*{\fill}
+\end{frame}%
+}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\section{Real AWGN Channel}
+%% Frame %%
+\begin{frame}{$M$-ary Signaling in AWGN Channel}
+  \footnotesize
+  \begin{itemize}
+    \item \pause One of $M$ continuous-time signals $s_1(t), \ldots, s_M(t)$ is transmitted
+    \item \pause The received signal is the transmitted signal corrupted by real AWGN
+    \item \pause $M$ hypotheses with prior probabilities $\pi_i, i=1,\ldots,M$
+      \begin{equation*}
+        \begin{array}{ccc}
+            H_1 & : & y(t) = s_1(t) + n(t) \\
+            H_2 & : & y(t) = s_2(t) + n(t) \\
+            \vdots &   &  \vdots          \\
+            H_M & : & y(t) = s_M(t) + n(t) \\
+        \end{array}
+      \end{equation*}
+    \item \pause If the prior probabilities are equal, ML decision rule is optimal
+    \item \pause The ML decision rule is
+    \begin{eqnarray*}
+      \delta_{ML}(y) = \argmin_{1 \leq i \leq M} \lVert y - s_i \rVert^2 = \argmax_{1 \leq i \leq M} \langle y, s_i \rangle - \frac{\lVert s_i \rVert^2}{2}
+    \end{eqnarray*}
+    \item \pause We want to study the performance of the ML decision rule
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{ML Decision Rule for Binary Signaling}
+  \footnotesize
+  \begin{itemize}
+    \item \pause Consider the special case of binary signaling
+      \begin{equation*}
+        \begin{array}{ccc}
+            H_0 & : & y(t) = s_0(t) + n(t) \\
+            H_1 & : & y(t) = s_1(t) + n(t) 
+        \end{array}
+      \end{equation*}
+    \item \pause The ML decision rule decides $H_0$ is true if \pause
+      \begin{equation*}
+        \langle y, s_0 \rangle - \frac{\lVert s_0 \rVert^2}{2} > \langle y, s_1 \rangle - \frac{\lVert s_1 \rVert^2}{2}
+      \end{equation*}
+    \item \pause The ML decision rule decides $H_1$ is true if \pause
+      \begin{equation*}
+        \langle y, s_0 \rangle - \frac{\lVert s_0 \rVert^2}{2} \leq \langle y, s_1 \rangle - \frac{\lVert s_1 \rVert^2}{2}
+      \end{equation*}
+    \item \pause The ML decision rule
+      \begin{equation*}
+        \langle y, s_0 - s_1 \rangle \overset{H_0}{\underset{H_1}{\gtreqless}} \frac{\lVert s_0 \rVert^2}{2} - \frac{\lVert s_1 \rVert^2}{2}
+      \end{equation*}
+    \item \pause The distribution of $\langle y, s_0 - s_1 \rangle$ is required to evaluate decision rule performance
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Performance of ML Decision Rule for Binary Signaling}
+  \footnotesize
+  \begin{itemize}
+    \item \pause Let $Z = \langle y, s_0 - s_1 \rangle$
+    \item \pause $Z$ is a Gaussian random variable \pause
+      \begin{eqnarray*}
+        Z = \langle y, s_0 - s_1 \rangle = \pause \langle s_i, s_0 - s_1 \rangle + \langle n, s_0 - s_1 \rangle
+      \end{eqnarray*}
+    \item \pause The mean and variance of $Z$ under $H_0$ are
+      \begin{eqnarray*}
+        E[Z|H_0] & = & \pause \lVert s_0 \rVert^2 - \langle s_0,s_1 \rangle \\ \pause
+        \var[Z|H_0] & = & \pause \sigma^2\lVert s_0 - s_1\rVert^2 \pause
+      \end{eqnarray*}
+      where $\sigma^2$ is the PSD of $n(t)$
+    \item \pause Probability of error under $H_0$ is
+      \begin{eqnarray*}
+        P_{e|0} = \Pr\left[ Z \leq  \frac{\lVert s_0 \rVert^2 -\lVert s_1 \rVert^2}{2} \bigg| H_0\right] \pause = Q\left(\frac{\lVert s_0 - s_1 \rVert}{2\sigma} \right) 
+      \end{eqnarray*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Performance of ML Decision Rule for Binary Signaling}
+  \footnotesize
+  \begin{itemize}
+    \item The mean and variance of $Z$ under $H_1$ are
+      \begin{eqnarray*}
+        E[Z|H_1] & = & \pause \langle s_1,s_0 \rangle - \lVert s_1 \rVert^2  \\ \pause
+        \var[Z|H_1] & = & \pause \sigma^2\lVert s_0 - s_1\rVert^2
+      \end{eqnarray*}
+    \item \pause Probability of error under $H_1$ is
+      \begin{eqnarray*}
+        P_{e|1} = \Pr\left[ Z >  \frac{\lVert s_0 \rVert^2 -\lVert s_1 \rVert^2}{2} \bigg| H_1\right] \pause = Q\left(\frac{\lVert s_0 - s_1 \rVert}{2\sigma} \right)
+      \end{eqnarray*}
+    \item \pause The average probability of error is
+      \begin{eqnarray*}
+        P_e = \frac{P_{e|0}+P_{e|1}}{2} = \pause Q\left(\frac{\lVert s_0 - s_1 \rVert}{2\sigma} \right)
+      \end{eqnarray*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Different Types of Binary Signaling}
+  \footnotesize
+  \begin{itemize}
+    \item \pause Let $E_b = \frac{1}{2}\left( \lVert s_0 \rVert^2 + \lVert s_1 \rVert^2 \right)$
+    \item \pause For antipodal signaling, $s_1(t) = -s_0(t)$ \pause
+
+    $E_b = \pause \lVert s_0 \rVert^2 = \lVert s_1 \rVert^2$ \pause and $\lVert s_0 - s_1 \rVert = \pause 2\lVert s_0 \rVert = 2\lVert s_1 \rVert = \pause 2\sqrt{E_b}$ \pause
+      \begin{eqnarray*}
+        P_e = \pause Q\left(\frac{\sqrt{E_b}}{\sigma} \right) \pause = Q\left(\sqrt{\frac{2E_b}{N_0} }\right)
+      \end{eqnarray*}
+      where $\sigma^2 = \frac{N_0}{2}$
+    \item \pause For on-off keying, $s_1(t) = s(t)$ and $s_0(t) = 0$ and
+    \begin{eqnarray*}
+      P_e = \pause Q\left(\sqrt{\frac{E_b}{N_0} }\right)
+    \end{eqnarray*}
+    \item \pause For orthogonal signaling, $s_1(t)$ and $s_2(t)$ are orthogonal ($\langle s_0, s_1 \rangle = 0$)
+    \begin{eqnarray*}
+      P_e = \pause Q\left(\sqrt{\frac{E_b}{N_0} }\right)
+    \end{eqnarray*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Performance Comparison of Antipodal and Orthogonal Signaling}
+  \footnotesize
+  \begin{figure}
+    \centering
+      \begin{tikzpicture}[scale=1.0,transform shape]
+        \begin{axis}[
+                     xlabel = {$\frac{E_b}{N_0}$ (dB)},
+                     ylabel = $P_e$,
+                     xmin = 0,
+                     xmax = 20,
+                     xtick = {0,2,4,6,8,10,12,14,16,18,20},
+                     ymin = 1e-10,
+                     ymax = 0.5,
+                     ymode = log,
+                     grid = major,
+                     x post scale = 1.0
+                    ]
+          \addplot[smooth, blue, domain=0:20,samples=100]gnuplot{0.5*erfc((sqrt(10**(0.1*x))/sqrt(2)))};
+          \addlegendentry{Orthogonal}
+          \addplot[smooth, red, domain=0:20,samples=100]gnuplot{0.5*erfc(sqrt(2*(10**(0.1*x)))/sqrt(2))};
+          \addlegendentry{Antipodal}
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Optimal Choice of Signal Pair}
+  \footnotesize
+  \begin{itemize}
+    \item \pause For any $s_0(t)$ and $s_1(t)$, the probability of error of the ML decision rule is
+      \begin{eqnarray*}
+        P_e = \pause Q\left(\frac{\lVert s_0 - s_1 \rVert}{2\sigma} \right)
+      \end{eqnarray*}
+    \item \pause How to chose $s_0(t)$ and $s_1(t)$ to minimize $P_e$?
+    \item \pause If $E_b$ is not fixed, the problem is ill-defined
+    \item \pause For a given $E_b$, we have
+      \begin{eqnarray*}
+        P_e = Q\left(\sqrt{\frac{\lVert s_0 - s_1 \rVert^2}{2N_0}} \right) \pause = Q\left(\sqrt{\frac{E_b(1-\rho)}{N_0}} \right) 
+      \end{eqnarray*}
+      where
+      \begin{eqnarray*}
+        \rho = \frac{\langle s_0, s_1 \rangle}{E_b}, \pause -1 \leq \rho \leq 1
+      \end{eqnarray*}
+    \item \pause $\rho = -1$ for antipodal signaling, $s_0(t) = -s_1(t)$
+    \item \pause \alert{Any pair of antipodal signals is the optimal choice}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+\section{Complex AWGN Channel}
+%% Frame %%
+\begin{frame}{ML Rule for Complex Baseband Binary Signaling}
+  \footnotesize
+  \begin{itemize}
+    \item \pause Consider binary signaling in the complex AWGN channel
+      \begin{equation*}
+        \begin{array}{ccc}
+            H_0 & : & y(t) = s_0(t) + n(t) \\
+            H_1 & : & y(t) = s_1(t) + n(t) 
+        \end{array}
+      \end{equation*}
+      \pause where 
+      \begin{description}
+        \item[$y(t)$] Complex envelope of received signal
+        \pause
+        \item[$s_i(t)$] Complex envelope of transmitted signal under $H_i$
+        \pause
+        \item[$n(t)$] Complex white Gaussian noise with PSD $N_0 = 2\sigma^2$
+      \end{description}
+    \item \pause $n(t) = n_c(t) + jn_s(t)$ where $n_c(t)$ and $n_s(t)$ are independent WGN with PSD $\sigma^2$
+    \item \pause The ML decision rule is \pause
+      \begin{eqnarray*}
+        \Re\left(\langle y, s_0 \rangle\right) - \frac{\lVert s_0 \rVert^2}{2} & \overset{H_0}{\underset{H_1}{\gtreqless}} & \Re\left(\langle y, s_1 \rangle\right) - \frac{\lVert s_1 \rVert^2}{2} \\ \pause
+        \Re\left(\langle y, s_0  - s_1\rangle\right)   & \overset{H_0}{\underset{H_1}{\gtreqless}} & \frac{\lVert s_0 \rVert^2 - \lVert s_1 \rVert^2}{2}
+      \end{eqnarray*}
+  \item \pause The distribution of $\Re\left(\langle y, s_0 - s_1 \rangle\right)$ is required to evaluate decision rule performance
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Performance of ML Rule for Complex Baseband Binary Signaling}
+  \footnotesize
+  \begin{itemize}
+    \item \pause Let $Z = \Re\left(\langle y, s_0 - s_1 \rangle\right)$
+    \item \pause $Z$ is a Gaussian random variable \pause
+      \begin{eqnarray*}
+        Z & = & \Re\left(\langle y, s_0 - s_1 \rangle\right) = \pause \langle y_c, s_{0,c} - s_{1,c} \rangle + \langle y_s, s_{0,s} - s_{1,s} \rangle \\
+          & = & \pause \langle s_{i,c} + n_c, s_{0,c} - s_{1,c} \rangle + \langle s_{i,s} + n_s, s_{0,s} - s_{1,s} \rangle \\
+          & = & \pause \langle s_{i,c}, s_{0,c} - s_{1,c} \rangle + \langle n_c, s_{0,c} - s_{1,c} \rangle \\
+          &   & + \langle s_{i,s}, s_{0,s} - s_{1,s} \rangle + \langle n_s, s_{0,s} - s_{1,s} \rangle
+      \end{eqnarray*}
+    \item \pause The mean and variance of $Z$ under $H_0$ are
+      \begin{eqnarray*}
+        E[Z|H_0] & = & \pause \lVert s_{0,c} \rVert^2 + \lVert s_{0,s} \rVert^2  - \langle s_{0,c},s_{1,c} \rangle - \langle s_{0,s},s_{1,s} \rangle \\
+                 & = & \pause \lVert s_0 \rVert^2 - \Re\left(\langle s_0,s_1 \rangle\right) \\ \pause
+     \var[Z|H_0] & = & \pause \sigma^2\lVert s_{0,c} - s_{1,c}\rVert^2 + \sigma^2\lVert s_{0,s} - s_{1,s}\rVert^2 = \pause \sigma^2\lVert s_0 - s_1\rVert^2
+      \end{eqnarray*}
+    \item \pause Probability of error under $H_0$ is
+      \begin{eqnarray*}
+        P_{e|0} = \Pr\left[ Z \leq  \frac{\lVert s_0 \rVert^2 -\lVert s_1 \rVert^2}{2} \bigg| H_0\right] \pause = Q\left(\frac{\lVert s_0 - s_1 \rVert}{2\sigma} \right) 
+      \end{eqnarray*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Performance of ML Rule for Complex Baseband Binary Signaling}
+  \footnotesize
+  \begin{itemize}
+    \item The mean and variance of $Z$ under $H_1$ are
+      \begin{eqnarray*}
+        E[Z|H_1] & = & \langle s_{1,c},s_{0,c} \rangle + \langle s_{1,s},s_{0,s} \rangle  - \lVert s_{1,c} \rVert^2 - \lVert s_{1,s} \rVert^2 \pause \\
+                 & = & \pause \Re\left(\langle s_1,s_0 \rangle\right) - \lVert s_1 \rVert^2\\ \pause
+     \var[Z|H_1] & = & \pause \sigma^2\lVert s_{0,c} - s_{1,c}\rVert^2 + \sigma^2\lVert s_{0,s} - s_{1,s}\rVert^2 = \pause \sigma^2\lVert s_0 - s_1\rVert^2
+      \end{eqnarray*}
+    \item \pause Probability of error under $H_1$ is
+      \begin{eqnarray*}
+        P_{e|1} = \Pr\left[ Z >  \frac{\lVert s_0 \rVert^2 -\lVert s_1 \rVert^2}{2} \bigg| H_1\right] \pause = Q\left(\frac{\lVert s_0 - s_1 \rVert}{2\sigma} \right)
+      \end{eqnarray*}
+    \item \pause The average probability of error is
+      \begin{eqnarray*}
+        P_e = \frac{P_{e|0}+P_{e|1}}{2} = \pause Q\left(\frac{\lVert s_0 - s_1 \rVert}{2\sigma} \right)
+      \end{eqnarray*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{}
+\vfill
+\begin{center}
+Thanks for your attention
+\end{center}
+\vfill
+\end{frame}
+
+\end{document}

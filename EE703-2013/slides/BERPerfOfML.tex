@@ -1,0 +1,418 @@
+\documentclass[t]{beamer}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{ulem}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\wt}{\operatornamewithlimits{wt}}
+\newcommand{\var}{\operatornamewithlimits{var}}
+\renewcommand\Re{\operatorname{Re}}
+\renewcommand\Im{\operatorname{Im}}
+
+\mode<presentation>
+{
+  \usetheme{Singapore}
+  %\useoutertheme{infolines} % Showing only current section in navigation
+  \setbeamertemplate{headline}{}  % Empty headline
+  \setbeamertemplate{footline}[frame number]  % Getting rid of footer items except slide number
+  \setbeamercovered{invisible}
+  \beamertemplatenavigationsymbolsempty % Getting rid of navigation bullets at the bottom
+}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+
+\title[EE 703 DMT]{BER Performance of ML Receiver}
+\author[Saravanan V]
+{
+  Saravanan Vijayakumaran\\
+  \href{mailto:sarva@ee.iitb.ac.in}{sarva@ee.iitb.ac.in}
+}
+\institute[IIT Bombay]
+{
+  Department of Electrical Engineering\\
+  Indian Institute of Technology Bombay
+}
+\date{October 15, 2013}
+
+\AtBeginSection[]%
+{%
+\begin{frame}[plain]%
+  \topskip0pt
+  \vspace*{\fill}
+    \begin{center}%
+      \usebeamerfont{section title}\insertsection%
+    \end{center}%
+  \vspace*{\fill}
+\end{frame}%
+}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Bit Error Rate of ML Decision Rule}
+  \footnotesize
+  \begin{itemize}
+    \item Average probability of bit error is also called bit error rate (BER)
+    \pause
+    \item For fixed SNR, symbol error probability depends only on constellation geometry
+    \pause
+    \item For fixed SNR, BER depends on both constellation geometry and the bits to signal mapping
+    \pause
+    \begin{figure}
+      \centering
+        \begin{tikzpicture}[scale=0.6,transform shape]
+          \begin{axis}[
+                       title={Gray coded bitmap for QPSK},
+                       xmax=1.5,
+                       xmin=-1.5,
+                       ymax=1.5,
+                       ymin=-1.5,
+                       axis lines = middle,
+                       ytick={1.45},
+                       yticklabels = {$Y_s$},
+                       xtick={1.46},
+                       xticklabels = {$Y_c$},
+                       x post scale = 1.0,
+                       xticklabel shift = -20pt,
+                       nodes near coords,
+                      ]
+            \addplot+[only marks, 
+                      mark options={draw=black,fill=black},
+                      point meta=explicit symbolic
+                      ] 
+                      coordinates {
+                        (1,1)[$00$]
+                        (-1,1)[$10$]
+                        (-1,-1)[$11$]
+                        (1,-1)[$01$]
+                      };
+          \end{axis}
+        \end{tikzpicture}
+        \pause
+        \begin{tikzpicture}[scale=0.6,transform shape]
+          \begin{axis}[
+                       title={Other bitmap for QPSK},
+                       xmax=1.5,
+                       xmin=-1.5,
+                       ymax=1.5,
+                       ymin=-1.5,
+                       axis lines = middle,
+                       ytick={1.45},
+                       yticklabels = {$Y_s$},
+                       xtick={1.46},
+                       xticklabels = {$Y_c$},
+                       x post scale = 1.0,
+                       xticklabel shift = -20pt,
+                       nodes near coords,
+                      ]
+            \addplot+[only marks, 
+                      mark options={draw=black,fill=black},
+                      point meta=explicit symbolic
+                      ] 
+                      coordinates {
+                        (1,1)[$00$]
+                        (-1,1)[$11$]
+                        (-1,-1)[$10$]
+                        (1,-1)[$01$]
+                      };
+          \end{axis}
+        \end{tikzpicture}
+    \end{figure}
+    \pause
+    \item For an $M$-ary constellation, number of possible bitmaps is \pause $M! = M(M-1)\cdots 3\cdot 2 \cdot 1$
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Bit Error Rate for QPSK using Gray Bitmap}
+  \footnotesize
+  \begin{figure}
+    \centering
+      \begin{tikzpicture}[scale=0.5,transform shape]
+        \begin{axis}[
+                     title={Gray coded bitmap for QPSK},
+                     xmax=1.5,
+                     xmin=-1.5,
+                     ymax=1.5,
+                     ymin=-1.5,
+                     axis lines = middle,
+                     ytick={1.45},
+                     yticklabels = {$Y_s$},
+                     xtick={1.46},
+                     xticklabels = {$Y_c$},
+                     x post scale = 1.0,
+                     xticklabel shift = -20pt,
+                     nodes near coords,
+                    ]
+          \addplot+[only marks, 
+                    mark options={draw=black,fill=black},
+                    point meta=explicit symbolic
+                    ] 
+                    coordinates {
+                      (1,1)[$00$]
+                      (-1,1)[$10$]
+                      (-1,-1)[$11$]
+                      (1,-1)[$01$]
+                    };
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+  \begin{itemize}
+    \item \pause Let $b[1]b[2]$ be the transmitted symbol 
+    \item \pause Let $\hat{b}[1]\hat{b}[2]$ be the decoded symbol
+    \item \pause Let $P_1 = \Pr\left( \hat{b}[1] \neq b[1] \right)$ \pause and $P_2 = \Pr\left( \hat{b}[2] \neq b[2] \right)$
+    \item \pause Average probability of bit error is $P_b = \frac{P_1 + P_2}{2}$
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Bit Error Rate for QPSK using Gray Bitmap}
+  \footnotesize
+  \begin{figure}
+    \centering
+      \begin{tikzpicture}[scale=0.5,transform shape]
+        \begin{axis}[
+                     title={Gray coded bitmap for QPSK},
+                     xmax=1.5,
+                     xmin=-1.5,
+                     ymax=1.5,
+                     ymin=-1.5,
+                     axis lines = middle,
+                     ytick={1.45},
+                     yticklabels = {$Y_s$},
+                     xtick={1.46},
+                     xticklabels = {$Y_c$},
+                     x post scale = 1.0,
+                     xticklabel shift = -20pt,
+                     nodes near coords,
+                    ]
+          \addplot+[only marks, 
+                    mark options={draw=black,fill=black},
+                    point meta=explicit symbolic
+                    ] 
+                    coordinates {
+                      (1,1)[$00$]
+                      (-1,1)[$10$]
+                      (-1,-1)[$11$]
+                      (1,-1)[$01$]
+                    };
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+  \begin{itemize}
+    \item \pause Probability of making error on $b[1]$ when $b[1]b[2] = 00$ is
+    \begin{eqnarray*}
+      P_{1|00} & = & \pause \Pr\left[ \hat{b}[1]= 1 \bigg| b[1]b[2] = 00\right] \\ \pause
+               & = & \pause \Pr\left[ \hat{b}[1]\hat{b}[2] = 10 \text{ or }  \hat{b}[1]\hat{b}[2] = 11\bigg| b[1]b[2] = 00\right] \\ \pause
+               & = & \pause \Pr\left[ Y_c < 0 \bigg| b[1]b[2] = 00\right] \pause = \pause Q\left(\sqrt{\frac{2E_b}{N_0} }\right)
+    \end{eqnarray*}
+    \item \pause By symmetry, $P_1 = \pause Q\left(\sqrt{\frac{2E_b}{N_0} }\right)$
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Bit Error Rate for QPSK using Gray Bitmap}
+  \footnotesize
+  \begin{figure}
+    \centering
+      \begin{tikzpicture}[scale=0.5,transform shape]
+        \begin{axis}[
+                     title={Gray coded bitmap for QPSK},
+                     xmax=1.5,
+                     xmin=-1.5,
+                     ymax=1.5,
+                     ymin=-1.5,
+                     axis lines = middle,
+                     ytick={1.45},
+                     yticklabels = {$Y_s$},
+                     xtick={1.46},
+                     xticklabels = {$Y_c$},
+                     x post scale = 1.0,
+                     xticklabel shift = -20pt,
+                     nodes near coords,
+                    ]
+          \addplot+[only marks, 
+                    mark options={draw=black,fill=black},
+                    point meta=explicit symbolic
+                    ] 
+                    coordinates {
+                      (1,1)[$00$]
+                      (-1,1)[$10$]
+                      (-1,-1)[$11$]
+                      (1,-1)[$01$]
+                    };
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+  \begin{itemize}
+    \item \pause Probability of making error on $b[2]$ when $b[1]b[2] = 00$ is
+    \begin{eqnarray*}
+      P_{2|00} & = & \pause \Pr\left[ \hat{b}[2]= 1 \bigg| b[1]b[2] = 00\right] \\ \pause
+               & = & \pause \Pr\left[ \hat{b}[1]\hat{b}[2] = 01 \text{ or }  \hat{b}[1]\hat{b}[2] = 11\bigg| b[1]b[2] = 00\right] \\ \pause
+               & = & \pause \Pr\left[ Y_s < 0 \bigg| b[1]b[2] = 00\right] \pause = \pause Q\left(\sqrt{\frac{2E_b}{N_0} }\right)
+    \end{eqnarray*}
+    \item \pause By symmetry, $P_2 = \pause Q\left(\sqrt{\frac{2E_b}{N_0} }\right)$. \pause $P_b = \pause (P_1+P_2)/2 = Q\left(\sqrt{\frac{2E_b}{N_0} }\right)$
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Bit Error Rate for QPSK using Other Bitmap}
+  \footnotesize
+  \begin{figure}
+    \centering
+      \begin{tikzpicture}[scale=0.5,transform shape]
+        \begin{axis}[
+                     title={Other bitmap for QPSK},
+                     xmax=1.5,
+                     xmin=-1.5,
+                     ymax=1.5,
+                     ymin=-1.5,
+                     axis lines = middle,
+                     ytick={1.45},
+                     yticklabels = {$Y_s$},
+                     xtick={1.46},
+                     xticklabels = {$Y_c$},
+                     x post scale = 1.0,
+                     xticklabel shift = -20pt,
+                     nodes near coords,
+                    ]
+          \addplot+[only marks, 
+                    mark options={draw=black,fill=black},
+                    point meta=explicit symbolic
+                    ] 
+                    coordinates {
+                      (1,1)[$00$]
+                      (-1,1)[$11$]
+                      (-1,-1)[$10$]
+                      (1,-1)[$01$]
+                    };
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+  \begin{itemize}
+    \item \pause Probability of making error on $b[1]$ when $b[1]b[2] = 00$ is
+    \begin{eqnarray*}
+      P_{1|00} & = & \pause \Pr\left[ \hat{b}[1]= 1 \bigg| b[1]b[2] = 00\right] \\ \pause
+               & = & \pause \Pr\left[ \hat{b}[1]\hat{b}[2] = 10 \text{ or }  \hat{b}[1]\hat{b}[2] = 11\bigg| b[1]b[2] = 00\right] \\ \pause
+               & = & \pause \Pr\left[ Y_c < 0 \bigg| b[1]b[2] = 00\right] \pause = \pause Q\left(\sqrt{\frac{2E_b}{N_0} }\right)
+    \end{eqnarray*}
+    \item \pause Can we use symmetry? \pause Yes. \pause $P_1 = Q\left(\sqrt{\frac{2E_b}{N_0} }\right)$
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Bit Error Rate for QPSK using Other Bitmap}
+  \footnotesize
+  \begin{figure}
+    \centering
+      \begin{tikzpicture}[scale=0.5,transform shape]
+        \begin{axis}[
+                     title={Other bitmap for QPSK},
+                     xmax=1.5,
+                     xmin=-1.5,
+                     ymax=1.5,
+                     ymin=-1.5,
+                     axis lines = middle,
+                     ytick={1.45},
+                     yticklabels = {$Y_s$},
+                     xtick={1.46},
+                     xticklabels = {$Y_c$},
+                     x post scale = 1.0,
+                     xticklabel shift = -20pt,
+                     nodes near coords,
+                    ]
+          \addplot+[only marks, 
+                    mark options={draw=black,fill=black},
+                    point meta=explicit symbolic
+                    ] 
+                    coordinates {
+                      (1,1)[$00$]
+                      (-1,1)[$11$]
+                      (-1,-1)[$10$]
+                      (1,-1)[$01$]
+                    };
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+  \begin{itemize}
+    \item \pause Probability of making error on $b[2]$ when $b[1]b[2] = 00$ is
+    \begin{eqnarray*}
+      P_{2|00} & = & \pause \Pr\left[ \hat{b}[2]= 1 \bigg| b[1]b[2] = 00\right] \\ \pause
+               & = & \pause \Pr\left[ \hat{b}[1]\hat{b}[2] = 01 \text{ or }  \hat{b}[1]\hat{b}[2] = 11\bigg| b[1]b[2] = 00\right] \\ \pause
+               & = & \pause \Pr\left[ (Y_c > 0 \cap Y_s < 0) \bigcup (Y_c < 0 \cap Y_s > 0) \bigg| b[1]b[2] = 00\right] \\ \pause
+               & = & \pause 2Q\left(\sqrt{\frac{2E_b}{N_0} }\right)\left[1 - Q\left(\sqrt{\frac{2E_b}{N_0} }\right)\right]
+    \end{eqnarray*}
+  \end{itemize}  
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Bit Error Rate for QPSK using Other Bitmap}
+  \footnotesize
+  \begin{figure}
+    \centering
+      \begin{tikzpicture}[scale=0.5,transform shape]
+        \begin{axis}[
+                     title={Other bitmap for QPSK},
+                     xmax=1.5,
+                     xmin=-1.5,
+                     ymax=1.5,
+                     ymin=-1.5,
+                     axis lines = middle,
+                     ytick={1.45},
+                     yticklabels = {$Y_s$},
+                     xtick={1.46},
+                     xticklabels = {$Y_c$},
+                     x post scale = 1.0,
+                     xticklabel shift = -20pt,
+                     nodes near coords,
+                    ]
+          \addplot+[only marks, 
+                    mark options={draw=black,fill=black},
+                    point meta=explicit symbolic
+                    ] 
+                    coordinates {
+                      (1,1)[$00$]
+                      (-1,1)[$11$]
+                      (-1,-1)[$10$]
+                      (1,-1)[$01$]
+                    };
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+  \begin{itemize}
+    \item \pause Can we use symmetry? \pause Yes. \pause $P_2 = \pause 2Q\left(\sqrt{\frac{2E_b}{N_0} }\right)\left[1 - Q\left(\sqrt{\frac{2E_b}{N_0} }\right)\right]$
+    \item \pause Average probability of bit error is
+      \begin{eqnarray*}
+        P_b = \frac{P_1 + P_2}{2} = \frac{3}{2}Q\left(\sqrt{\frac{2E_b}{N_0} }\right) - Q^2\left(\sqrt{\frac{2E_b}{N_0} }\right) \pause \approx \frac{3}{2}Q\left(\sqrt{\frac{2E_b}{N_0} }\right)
+      \end{eqnarray*}
+    \item \pause Average bit error probability is increased by about 50\%
+  \end{itemize}  
+  \normalsize
+\end{frame}
+
+
+
+%% Frame %%
+\begin{frame}{}
+\vfill
+\begin{center}
+Thanks for your attention
+\end{center}
+\vfill
+\end{frame}
+
+\end{document}

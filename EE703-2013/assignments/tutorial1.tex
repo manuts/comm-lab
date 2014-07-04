@@ -1,0 +1,143 @@
+\documentclass[10pt]{report}
+\usepackage{./EE703handout}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{decorations.pathmorphing}
+\usepackage{mathtools}
+\usepackage{subfig}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{verbatim}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\setlength{\textheight}{9.4in}     % 9.4in
+\setlength{\textwidth}{7.3in}      % 6.3in
+\setlength{\parindent}{0mm}
+%\setlength{\parskip}{3mm}
+\setlength{\oddsidemargin}{-0.5in}  % 0.0in
+\setlength{\topmargin}{-1.0in}  % 0.0in
+\setlength{\headheight}{0.0in}  % 0.0in
+
+
+\begin{document}
+\handout{}{Date: August 23, 2013}{Tutorial 1}
+\begin{enumerate}
+  \item Consider the Monty Hall problem with three doors. One of the doors has a car behind it and the other two have goats. The car is equally likely to be behind any of the three doors. A contestant picks a door at random. The game show host then reveals one of the other doors which does not have the car. The contestant has an option of switching from his currently chosen door to the door which is not open or sticking with his initial choice. We want to show that the switching strategy gives a higher probability of winning than the not switching strategy.
+    \begin{enumerate}
+      \item Give a sample space for this experiment which will capture all the relevant events.
+      \item What is the event corresponding to the switching strategy?
+      \item What is the event corresponding to the not switching strategy?
+      \item Calculate the probability of winning for the switching strategy.
+      \item Calculate the probability of winning for the not switching strategy.
+    \end{enumerate}
+  \item Let $X$ and $Y$ be jointly distributed discrete random variable with joint pmf $f(x,y)$. The conditional pmf of $Y$ given $X=x$ is defined as
+    \begin{equation*}
+      f_{Y|X} (y|x) = P(Y = y | X = x)
+    \end{equation*}
+  The conditional expectation of $Y$ given $X=x$ is defined as
+    \begin{equation*}
+      E(Y|X=x) = \sum_{y} y f_{Y|X}(y|x)
+    \end{equation*}
+  Prove that the conditional expectation $\psi(X) = E(Y|X)$ satisfies
+    \begin{eqnarray*}
+      E\left[ E(Y|X) \right] = E(Y)
+    \end{eqnarray*}
+  \item In a 3-repetition code, given a block of message bits each 0 is replaced with three 0's and each 1 is replaced with three 1's.
+    \begin{equation*}
+      0 \rightarrow 000, 1 \rightarrow 111
+    \end{equation*}
+    Suppose the encoder output is sent through a binary symmetric channel. What is the best way to build the decoder?
+    \begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[scale=0.8,transform shape]
+      \tikzstyle{rectblock}=[rectangle, draw, inner sep=3mm]
+      \node (Message) {$101001$};
+      \node[rectblock, right=1cm of Message] (Encoder) {\begin{tabular}{c}3-Repetition\\
+                                                                                 Encoder
+                                                          \end{tabular}
+                                                         };
+      \node[right = 1cm of Encoder] (Output) {$111 \ 000 \ 111 \ 000 \ 000 \ 111$};
+      \draw [->,very thick] (Message) -- (Encoder);
+      \draw [->,very thick] (Encoder) -- (Output);
+    \end{tikzpicture}
+    \end{figure}
+  \item 
+    \begin{enumerate}
+    \item Find an orthonormal basis for the following waveforms. 
+      \begin{figure}[h]
+        \centering
+          \begin{tikzpicture}[scale=0.60,transform shape]
+            \begin{axis}[
+                         title=$s_1(t)$,
+                         xmax=3.5,
+                         xmin=0,
+                         ymax=2.5,
+                         ymin=-1.5,
+                         axis lines = middle,
+                         ytick={2,0},
+                         xtick = {0,1,2,3,3.5},
+                         xticklabels = {$0$,1,2,3,$t$},
+                         yticklabels = {2,0},
+                        ]
+              \addplot[color=blue,very thick] coordinates {(0,2) (3,2) (3,0) };
+            \end{axis}
+          \end{tikzpicture}
+        \centering
+          \begin{tikzpicture}[scale=0.60,transform shape]
+            \begin{axis}[
+                         title=$s_2(t)$,
+                         xmax=3.5,
+                         xmin=0,
+                         ymax=2.5,
+                         ymin=-1.5,
+                         axis lines = middle,
+                         ytick={2,0},
+                         xtick = {0,1,3.5},
+                         xticklabels = {$0$,1,$t$},
+                         yticklabels = {2,0},
+                        ]
+              \addplot[color=blue,very thick] coordinates {(0,2) (1,2) (1,0)};
+            \end{axis}
+          \end{tikzpicture}
+        \centering
+          \begin{tikzpicture}[scale=0.60,transform shape]
+            \begin{axis}[
+                         title=$s_3(t)$,
+                         xmax=3.5,
+                         xmin=0,
+                         ymax=1.5,
+                         ymin=-2.5,
+                         axis lines = middle,
+                         ytick={0, -2},
+                         xtick = {0,1,2,3,3.5},
+                         xticklabels = {$0$,1,2,3,$t$},
+                         xticklabel shift = -20pt,
+                         yticklabels = {0,-2},
+                        ]
+              \addplot[color=blue,very thick] coordinates {(1,0) (1,-2) (3,-2) (3,0)};
+            \end{axis}
+          \end{tikzpicture}
+        \centering
+          \begin{tikzpicture}[scale=0.60,transform shape]
+            \begin{axis}[
+                         title=$s_4(t)$,
+                         xmax=3.5,
+                         xmin=0,
+                         ymax=2.5,
+                         ymin=-1.5,
+                         axis lines = middle,
+                         ytick={2,0},
+                         xtick = {0,1,2,3,3.5},
+                         xticklabels = {$0$,1,2,3,$t$},
+                         yticklabels = {2,0},
+                        ]
+              \addplot[color=blue,very thick] coordinates {(0,2) (2,2) (2,0)};
+            \end{axis}
+          \end{tikzpicture}
+      \end{figure}
+      \item Use the basis functions to represent the waveforms as vectors $\mathbf{s}_1, \mathbf{s}_2, \mathbf{s}_3, \mathbf{s}_4$. 
+      \item Determine the pair of waveforms which are closest to each other where distance between $s_i(t)$ and $s_j(t)$ is defined as $\int_{-\infty}^{\infty} \left[ s_i(t) - s_j(t) \right]^2 \ dt$.
+  \end{enumerate}
+
+
+\end{enumerate}
+\end{document}

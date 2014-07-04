@@ -1,0 +1,43 @@
+\documentclass[10pt]{report}
+\usepackage{./EE703handout}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{decorations.pathmorphing}
+\usepackage{mathtools}
+\usepackage{subfig}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{verbatim}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\setlength{\textheight}{9.4in}     % 9.4in
+\setlength{\textwidth}{6.3in}      % 6.3in
+\setlength{\parindent}{0mm}
+%\setlength{\parskip}{3mm}
+\setlength{\oddsidemargin}{0.0in}  % 0.0in
+\setlength{\topmargin}{-0.0in}  % 0.0in
+\setlength{\headheight}{0.0in}  % 0.0in
+
+
+\begin{document}
+\handout{}{Due Date: August 8, 2013}{Assignment 1}
+\begin{enumerate}
+  \item Suppose we define the complex envelope of a passband signal $s_p(t)$ centered at $\pm f_c$ as  
+    \begin{eqnarray*}
+      S(f) = 2S_p(f - f_c)u(- f + f_c)
+    \end{eqnarray*}
+  where $S_p(f)$ is the Fourier transform of $s_p(t)$. Derive the following with explanations for each step.
+    \begin{enumerate}
+      \item $s_p(t)$ in terms of $s(t)$
+      \item $s_p(t)$ in terms of $s_c(t)$ and $s_s(t)$ (the in-phase and quadrature components of $s(t)$)
+      \item $s(t)$ in terms of $s_p(t)$
+      \item $S_p(f)$ in terms of $S(f)$
+      \item The relationship between $\lVert s \rVert^2$ and $\lVert s_p \rVert^2$.
+    \end{enumerate}
+  \item For a real baseband signal $s(t)$, the corresponding single side band (SSB) modulated signal is given by
+    \begin{eqnarray*}
+      s_{ssb}(t) = s(t) \cdot \cos (2\pi f_c t) - \hat{s}(t) \cdot \sin (2\pi f_c t)
+    \end{eqnarray*}
+  where $\hat{s}(t)$ is the Hilbert transform of $s(t)$.
+    We saw in class that the frequency spectrum of $s_{ssb}(t)$ only has the upper sideband of $s(t)$. Suppose we want a SSB signal which has only the lower sideband of $s(t)$. What is the time domain representation of such a signal in terms of $s(t)$ and $\hat{s}(t)$?
+\end{enumerate}
+\end{document}

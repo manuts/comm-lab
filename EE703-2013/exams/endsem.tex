@@ -1,0 +1,163 @@
+\documentclass[10pt]{report}
+\usepackage{./EE703handout}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{decorations.pathmorphing}
+\usepackage{mathtools}
+\usepackage{subfig}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{verbatim}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\setlength{\textheight}{9.4in}     % 9.4in
+\setlength{\textwidth}{7.3in}      % 6.3in
+\setlength{\parindent}{0mm}
+%\setlength{\parskip}{3mm}
+\setlength{\oddsidemargin}{-0.5in}  % 0.0in
+\setlength{\topmargin}{-1.0in}  % 0.0in
+\setlength{\headheight}{0.0in}  % 0.0in
+
+\renewcommand\Re{\operatorname{Re}}
+
+\begin{document}
+\handout{}{Date: November 18, 2013}{Endsem Exam: \textbf{45 points}}
+Each question is worth 5 points.
+\begin{enumerate}
+  \item Consider the following binary hypothesis testing problem where the hypotheses are equally likely.
+    \begin{eqnarray*}
+      H_0 & : & Y \sim U\left[ -\sqrt{\frac{e^2\pi}{2}}, \sqrt{\frac{e^2\pi}{2}} \right] \\
+      H_1 & : & Y \sim \mathcal{N}(0,1)
+    \end{eqnarray*}
+    $U$ denotes the uniform distribution, $\mathcal{N}$ denotes the Gaussian distribution and $e$ is the base of the natural logarithm.
+    \begin{enumerate}
+      \item Find the decision error probability of the rule which decides $H_1$ is true if $\lvert Y \rvert > \sqrt{\frac{e^2\pi}{2}}$ and decides $H_0$ is true if $\lvert Y \rvert \leq \sqrt{\frac{e^2\pi}{2}}$. Express your answer in terms of the $Q$ function.
+      \item Find the decision error probability of the optimal decision rule. Express your answer in terms of the $Q$ function.
+    \end{enumerate}
+
+  \item Suppose a binary source is equally likely to emit $0$ or $1$. Suppose the bit $0$ is mapped to $101$, the bit $1$ is mapped to $010$ and the three bits are sent over a binary symmetric channel (BSC) with crossover probability $p < \frac{1}{2}$. The output of the BSC is used to decide which bit was emitted by the source.
+    \begin{enumerate}
+      \item Find the optimal decision rule.
+      \item Find the decision error probability of the optimal decision rule in terms of $p$.
+    \end{enumerate}
+
+  \item Prove that $\mathbf{U} = e^{j\phi}\mathbf{Z}$ is a complex Gaussian vector when $\mathbf{Z}$ is a complex Gaussian vector.
+
+  \item For $M = 2^b$, suppose $M$ \textbf{orthogonal} real signals $s_i(t), \ i = 1,\ldots,M$ are used for transmitting $b$ bits over a real AWGN channel with PSD $\frac{N_0}{2}$. If all the signals have the same energy $E$ and are equally likely to be transmitted, derive the following as a function of $E$, $N_0$, $b$ or $M$ when the optimal receiver is used.
+  \begin{enumerate}
+    \item The power efficiency of this modulation scheme
+    \item The union bound on the symbol error probability
+    \item The nearest neighbor approximation of the symbol error probability
+  \end{enumerate}
+
+ \item Consider the following signals. 
+    \begin{equation*}
+      s_1(t) = -3A p(t), s_2(t) = -A p(t), s_3(t) = A p(t), s_4(t) = 3A p(t)
+    \end{equation*}
+    where $p(t) = I_{[0,1]}(t)$.
+  If these signals are equally likely to be sent over a real AWGN channel with power spectral density $\frac{N_0}{2}$,  derive the following when the optimal receiver is used.
+  \begin{enumerate}
+    \item The power efficiency of this modulation scheme.
+    \item The exact symbol error probability as a function of $E_b$ and $N_0$
+    \item The union bound on the symbol error probability
+    \item The intelligent union bound on the symbol error probability
+    \item The nearest neighbor approximation of the symbol error probability
+  \end{enumerate}
+
+  \newpage
+  \item Derive the bit error rate of the ML receiver for QPSK for the two symbol to bit mappings shown below. Let $s_i$ be the symbol in the $i$th quadrant given by
+    \begin{eqnarray*}
+      s_1 =  \sqrt{E_b}+j\sqrt{E_b},  
+      s_2 = -\sqrt{E_b}+j\sqrt{E_b},  
+      s_3 = -\sqrt{E_b}-j\sqrt{E_b},  
+      s_4 =  \sqrt{E_b}-j\sqrt{E_b}.
+    \end{eqnarray*}
+    Assume the transmitted symbols are corrupted by circularly symmetric complex Gaussian noise with variance $2\sigma^2 = N_0$.
+    \begin{figure}[h]
+      \centering
+        \begin{tikzpicture}[scale=0.9,transform shape]
+          \begin{axis}[
+                       title={Bit Mapping A},
+                       xmax=1.5,
+                       xmin=-1.5,
+                       ymax=1.5,
+                       ymin=-1.5,
+                       axis lines = middle,
+                       ytick={1.45},
+                       yticklabels = {$Y_s$},
+                       xtick={1.46},
+                       xticklabels = {$Y_c$},
+                       x post scale = 1.0,
+                       xticklabel shift = -20pt,
+                       nodes near coords,
+                      ]
+            \addplot+[only marks, 
+                      mark options={draw=black,fill=black},
+                      point meta=explicit symbolic
+                      ] 
+                      coordinates {
+                        (1,1)[$01$]
+                        (-1,1)[$00$]
+                        (-1,-1)[$10$]
+                        (1,-1)[$11$]
+                      };
+          \end{axis}
+        \end{tikzpicture}
+        \begin{tikzpicture}[scale=0.9,transform shape]
+          \begin{axis}[
+                       title={Bit Mapping B},
+                       xmax=1.5,
+                       xmin=-1.5,
+                       ymax=1.5,
+                       ymin=-1.5,
+                       axis lines = middle,
+                       ytick={1.45},
+                       yticklabels = {$Y_s$},
+                       xtick={1.46},
+                       xticklabels = {$Y_c$},
+                       x post scale = 1.0,
+                       xticklabel shift = -20pt,
+                       nodes near coords,
+                      ]
+            \addplot+[only marks, 
+                      mark options={draw=black,fill=black},
+                      point meta=explicit symbolic
+                      ] 
+                      coordinates {
+                        (1,1)[$01$]
+                        (-1,1)[$00$]
+                        (-1,-1)[$11$]
+                        (1,-1)[$10$]
+                      };
+          \end{axis}
+        \end{tikzpicture}
+    \end{figure}
+
+  \item Suppose observations $X_i$ and $Y_i$ ($i=1,\ldots,N$) depend on an unknown parameter $A$ as per the following distributions.
+    \begin{eqnarray*}
+      X_i \sim  \mathcal{N}(A,\sigma^2) , \ \ i = 1,2,\ldots,N\\
+      Y_i \sim  \mathcal{N}(A,2\sigma^2) , \ \ i = 1,2,\ldots,N
+    \end{eqnarray*}
+  Note that the variance of $Y_i$ is twice the variance of $X_i$. Assume that $X_i$ and $X_j$ are independent for $i \neq j$. Assume that $Y_i$ and $Y_j$ are independent for $i \neq j$. Assume that $X_i$ and $Y_j$ are independent for all $i,j$. Assume $\sigma^2$ is known.
+    \begin{enumerate}
+      \item Derive the ML estimator for $A$.
+      \item Find the mean and variance of the ML estimate.
+    \end{enumerate}
+  \item Consider the real baseband received signal 
+  \begin{equation*}
+    y(t) = As(t-\tau) + n(t)
+  \end{equation*}
+where $n(t)$ is a real WGN process with known PSD $\sigma^2$. The parameters $A$ and $\tau$ are unknown while $s(t)$ is known. Derive the ML estimates of $A$ and $\tau$. Recall that the likelihood ratio of signals in real AWGN is
+      \begin{equation*}
+        L(y|s_\theta) = \exp\left( \frac{1}{\sigma^2} \left[\langle y, s_\theta\rangle - \frac{\lVert s_\theta \rVert^2}{2} \right]\right)
+      \end{equation*}
+      where $s_\theta$ is the signal containing the unknown parameters $\theta$.
+
+  \item Suppose you observe a real white Gaussian noise process with unknown power spectral density $\sigma^2$. Devise a scheme to estimate $\sigma^2$. Your estimator need not be the ML estimator but it should satisfy the following desirable properties.
+  \begin{enumerate}
+    \item The mean of the estimator should be equal to $\sigma^2$. 
+    \item You should be able to make the variance of your estimator smaller by varying some parameters of your scheme.
+  \end{enumerate}
+  You need to provide proofs that the above properties are satisfied for the estimator you propose. 
+
+ \textit{Hint}: The fourth moment of a Gaussian random variable with mean $\mu$ and variance $\nu^2$ is $\mu^4 + 6\mu^2\nu^2 + 3\nu^4$.\end{enumerate}
+\end{document}

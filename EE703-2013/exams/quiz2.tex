@@ -1,0 +1,113 @@
+\documentclass[10pt]{report}
+\usepackage{./EE703handout}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{decorations.pathmorphing}
+\usepackage{mathtools}
+\usepackage{subfig}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{verbatim}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\setlength{\textheight}{9.4in}     % 9.4in
+\setlength{\textwidth}{6.3in}      % 6.3in
+\setlength{\parindent}{0mm}
+%\setlength{\parskip}{3mm}
+\setlength{\oddsidemargin}{0.0in}  % 0.0in
+\setlength{\topmargin}{-1.0in}  % 0.0in
+\setlength{\headheight}{0.0in}  % 0.0in
+
+
+\begin{document}
+\handout{}{Date: October 17, 2013}{Quiz 2: \textbf{12 points}}
+\begin{enumerate}
+  \item \textbf{[4 points]} A communication system transmits one of three messages $m_1, m_2,$ and $m_3$ using signals $s_1(t)$, $s_2(t)$, and $s_3(t)$. The signal $s_3(t) = 0$ and the signals $s_1(t)$ and $s_2(t)$ are shown below. The channel is AWGN channel with noise PSD $\frac{N_0}{2}$.
+  \begin{figure}[h]
+    \centering
+      \begin{tikzpicture}[scale=0.75,transform shape]
+        \begin{axis}[
+                     title=$s_1(t)$,
+                     xmax=3.5,
+                     xmin=0,
+                     ymax=2.5,
+                     ymin=-2.5,
+                     axis lines = middle,
+                     yticklabels ={$A$,$-A$},
+                     xtick = {0,1,3,3.5},
+                     xticklabels = {$0$,$\frac{T}{3}$,$T$},
+                     ytick= {1,-1},
+                     xticklabel shift = -20pt,
+                    ]
+          \addplot[color=blue,very thick] coordinates {(0,1) (1,1) (1,-1) (3,-1) (3,0)};
+        \end{axis}
+      \end{tikzpicture}
+    \centering
+      \begin{tikzpicture}[scale=0.75,transform shape]
+        \begin{axis}[
+                     title=$s_2(t)$,
+                     xmax=3.5,
+                     xmin=0,
+                     ymax=2.5,
+                     ymin=-2.5,
+                     axis lines = middle,
+                     ytick={2,-2},
+                     xtick = {0,1,3,3.5},
+                     xticklabels = {$0$,$\frac{T}{3}$,$T$},
+                     yticklabels = {$2A$,$-2A$},
+                     xticklabel shift = -20pt,
+                    ]
+          \addplot[color=blue,very thick] coordinates {(0,2) (1,2) (1,-2) (3,-2) (3,0)};
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+  \begin{enumerate}
+    \item Determine an orthonormal basis for this signal set, and depict the signal constellation.
+    \item If the three messages are equiprobable, what is the optimal decision rule?
+    \item What is the average decision error probability of the optimal decision rule in terms of $E_b$ and $N_0$?
+  \end{enumerate}
+  \item \textbf{[4 points]} A binary signaling scheme over an AWGN channel with noise PSD $\frac{N_0}{2}$ is equally likely to transmit the following two signals. One of the two signals is transmitted every $T$ seconds.
+ \begin{figure}[h]
+    \centering
+      \begin{tikzpicture}[scale=0.75,transform shape]
+        \begin{axis}[
+                     title=$s_1(t)$,
+                     xmax=2.5,
+                     xmin=0,
+                     ymax=2.5,
+                     ymin=-0.5,
+                     axis lines = middle,
+                     yticklabels ={1,2},
+                     xtick = {0,1,2,3.5},
+                     xticklabels = {$0$,$\frac{T}{2}$,$T$},
+                     ytick= {1,2},
+                    ]
+          \addplot[color=blue,very thick] coordinates {(0,2) (1,2) (1,1) (2,1) (2,0)};
+        \end{axis}
+      \end{tikzpicture}
+    \centering
+      \begin{tikzpicture}[scale=0.75,transform shape]
+        \begin{axis}[
+                     title=$s_2(t)$,
+                     xmax=2.5,
+                     xmin=0,
+                     ymax=2.5,
+                     ymin=-0.5,
+                     axis lines = middle,
+                     ytick= {1,2},
+                     xtick = {0,1,2,3.5},
+                     xticklabels = {$0$,$\frac{T}{2}$,$T$},
+                     yticklabels ={1,2},
+                    ]
+          \addplot[color=blue,very thick] coordinates {(0,1) (1,1) (1,2) (2,2) (2,0)};
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+  \begin{enumerate}
+    \item What is the $E_b$ for this system in terms of $T$?
+    \item What is the optimal decision rule?
+    \item What is the average decision error probability of the optimal decision rule in terms of $E_b$ and $N_0$?
+    \item By how many decibels does this system underperform a binary antipodal signaling system with the same $\frac{E_b}{N_0}$?
+  \end{enumerate}
+    \item \textbf{[4 points]} Show that for equiprobable binary signaling over an AWGN channel \textbf{any} pair of antipodal signals represents the optimal choice of signal pair. Assume $E_b$ is fixed.
+\end{enumerate}
+\end{document}

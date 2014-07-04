@@ -1,0 +1,193 @@
+\documentclass[t]{beamer}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{ulem}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\wt}{\operatornamewithlimits{wt}}
+\newcommand{\var}{\operatornamewithlimits{var}}
+\renewcommand\Re{\operatorname{Re}}
+\renewcommand\Im{\operatorname{Im}}
+
+\mode<presentation>
+{
+  \usetheme{Singapore}
+  %\useoutertheme{infolines} % Showing only current section in navigation
+  \setbeamertemplate{headline}{}  % Empty headline
+  \setbeamertemplate{footline}[frame number]  % Getting rid of footer items except slide number
+  \setbeamercovered{invisible}
+  \beamertemplatenavigationsymbolsempty % Getting rid of navigation bullets at the bottom
+}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+
+\title[EE 703 DMT]{ML Estimation of Signal Parameters}
+\author[Saravanan V]
+{
+  Saravanan Vijayakumaran\\
+  \href{mailto:sarva@ee.iitb.ac.in}{sarva@ee.iitb.ac.in}
+}
+\institute[IIT Bombay]
+{
+  Department of Electrical Engineering\\
+  Indian Institute of Technology Bombay
+}
+\date{October 28, 2013}
+
+\AtBeginSection[]%
+{%
+\begin{frame}[plain]%
+  \topskip0pt
+  \vspace*{\fill}
+    \begin{center}%
+      \usebeamerfont{section title}\insertsection%
+    \end{center}%
+  \vspace*{\fill}
+\end{frame}%
+}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+%% Frame %%
+\begin{frame}{ML Estimation Requires Conditional Densities}
+  \footnotesize
+  \begin{itemize}
+    \item ML estimation involves maximizing the conditional density wrt unknown parameters
+      \begin{equation*}
+        \pause \hat{\theta}_{ML}(y) = \argmax_{\theta} p(y|\theta)
+      \end{equation*}
+    \item \pause Example: $Y \sim \mathcal{N}(\theta, \sigma^2)$ where $\theta$ is unknown and $\sigma^2$ is known 
+      \begin{equation*}
+        \pause p\left(y | \theta \right) = \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(y-\theta)^2}{2\sigma^2}}
+      \end{equation*}
+    \item \pause Suppose the observation is the realization of a random process
+      \begin{equation*}
+        y(t) = Ae^{\ j\theta}s(t-\tau) + n(t)
+      \end{equation*}
+    \item \pause What is the conditional density of $y(t)$ given $A$, $\theta$ and $\tau$?
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Maximizing Likelihood Ratio for ML Estimation}
+  \footnotesize
+  \begin{itemize}
+    \item Consider $Y \sim \mathcal{N}(\theta, \sigma^2)$ where $\theta$ is unknown and $\sigma^2$ is known 
+      \begin{equation*}
+        \pause p(y | \theta) = \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(y-\theta)^2}{2\sigma^2}}
+      \end{equation*}
+    \item \pause Let $q(y)$ be the density of a Gaussian with distribution $\mathcal{N}(0, \sigma^2)$
+      \begin{equation*}
+        \pause q(y) = \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{y^2}{2\sigma^2}}
+      \end{equation*}
+    \item \pause The ML estimate of $\theta$ is obtained as
+      \begin{eqnarray*}
+        \hat{\theta}_{ML}(y) & = & \pause \argmax_{\theta} p( y | \theta) = \pause \argmax_{\theta} \frac{p(y|\theta)}{q(y)} \\
+                                      & = & \pause \argmax_{\theta} L(y|\theta) 
+      \end{eqnarray*}
+      where $L(y|\theta)$ is called the likelihood ratio
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Likelihood Ratio and Hypothesis Testing}
+  \footnotesize
+  \begin{itemize}
+    \item The likelihood ratio $L(y|\theta)$ is the ML decision statistic for the following binary hypothesis testing problem
+      \begin{equation*}
+        \begin{array}{lcl}
+            H_1 & : & Y \sim \mathcal{N}(\theta, \sigma^2) \\
+            H_0 & : & Y \sim \mathcal{N}(0, \sigma^2) 
+        \end{array}
+      \end{equation*}
+    \item \pause $H_0$ is a dummy hypothesis which does not give any advantage for the case of random vectors
+    \item \pause But it makes calculation of the ML estimator easy for random processes
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Likelihood Ratio of a Signal in AWGN}
+  \footnotesize
+  \begin{itemize}
+    \item Let $H_s(\theta)$ be the hypothesis corresponding the following received signal
+      \begin{equation*}
+        \begin{array}{lcl}
+          H_s(\theta) & : & y(t) = s_\theta(t) + n(t)
+        \end{array}
+      \end{equation*}
+      where $\theta$ can be a vector parameter
+    \item \pause Define a noise-only dummy hypothesis $H_0$
+      \begin{equation*}
+        \begin{array}{lcl}
+          H_0 & : & y(t) = n(t)
+        \end{array}
+      \end{equation*}
+    \item \pause Define $Z$ and $y^\perp(t)$ as follows
+      \begin{eqnarray*}
+        Z & = & \langle y, s_\theta\rangle \\ \pause
+        y^\perp(t) & = & y(t) -\langle y, s_\theta\rangle \frac{s_\theta(t)}{\lVert s_\theta\rVert^2}
+      \end{eqnarray*}
+    \item \pause $Z$ and $y^\perp(t)$ completely characterize $y(t)$
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Likelihood Ratio of a Signal in AWGN}
+  \footnotesize
+  \begin{itemize}
+    \item Under both hypotheses $y^\perp(t)$ is equal to $n^\perp(t)$ where
+      \begin{equation*}
+        n^\perp(t) = n(t) -\langle n, s_\theta\rangle \frac{s_\theta(t)}{\lVert s_\theta\rVert^2}
+      \end{equation*}
+    \item \pause $n^\perp(t)$ has the same distribution under both hypotheses
+    \item \pause $n^\perp(t)$ is irrelevant for this binary hypothesis testing problem
+    \item \pause The likelihood ratio of $y(t)$ equals the likelihood ratio of $Z$ under the following hypothesis testing problem
+      \begin{equation*}
+        \begin{array}{lcl}
+          H_s(\theta) & : & Z \sim \mathcal{N}(\lVert s_\theta \rVert^2, \sigma^2\lVert s_\theta \rVert^2) \\
+          H_0(\theta) & : & Z \sim \mathcal{N}(0, \sigma^2\lVert s_\theta \rVert^2) 
+        \end{array}
+      \end{equation*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Likelihood Ratio of Signals in AWGN}
+  \footnotesize
+  \begin{itemize}
+    \item The likelihood ratio of signals in real AWGN is
+      \begin{equation*}
+        L(y|s_\theta) = \exp\left( \frac{1}{\sigma^2} \left[\langle y, s_\theta\rangle - \frac{\lVert s_\theta \rVert^2}{2} \right]\right)
+      \end{equation*}
+    \item \pause The likelihood ratio of signals in complex AWGN is
+      \begin{equation*}
+        L(y|s_\theta) = \exp\left( \frac{1}{\sigma^2} \left[\Re(\langle y, s_\theta\rangle) - \frac{\lVert s_\theta \rVert^2}{2} \right]\right)
+      \end{equation*}
+    \item \pause Maximizing these likelihood ratios as functions of $\theta$ results in the ML estimator
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{}
+\vfill
+\begin{center}
+Thanks for your attention
+\end{center}
+\vfill
+\end{frame}
+
+\end{document}

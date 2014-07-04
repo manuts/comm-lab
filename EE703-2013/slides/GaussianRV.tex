@@ -1,0 +1,304 @@
+\documentclass[t]{beamer}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\wt}{\operatornamewithlimits{wt}}
+\newcommand{\cov}{\operatornamewithlimits{cov}}
+\newcommand{\var}{\operatornamewithlimits{var}}
+
+\mode<presentation>
+{
+  \usetheme{Singapore}
+  %\useoutertheme{infolines} % Showing only current section in navigation
+  \setbeamertemplate{headline}{}  % Empty headline
+  \setbeamertemplate{footline}[frame number]  % Getting rid of footer items except slide number
+  \setbeamercovered{invisible}
+  \beamertemplatenavigationsymbolsempty % Getting rid of navigation bullets at the bottom
+}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+
+\title[EE 703 DMT]{Gaussian Random Variables}
+\author[Saravanan V]
+{
+  Saravanan Vijayakumaran\\
+  \href{mailto:sarva@ee.iitb.ac.in}{sarva@ee.iitb.ac.in}
+}
+\institute[IIT Bombay]
+{
+  Department of Electrical Engineering\\
+  Indian Institute of Technology Bombay
+}
+\date{September 2, 2013}
+
+\AtBeginSection[]%
+{%
+\begin{frame}[plain]%
+  \topskip0pt
+  \vspace*{\fill}
+    \begin{center}%
+      \usebeamerfont{section title}\insertsection%
+    \end{center}%
+  \vspace*{\fill}
+\end{frame}%
+}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Gaussian Random Variable}
+  \footnotesize
+  \begin{definition}[]
+    \pause
+    A continuous random variable with pdf of the form
+    \begin{equation*}
+    p(x) = \frac{1}{\sqrt{2\pi \sigma^2}} \exp{\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)}, \ \ \ \ -\infty < x < \infty,
+    \end{equation*}
+    where $\mu$ is the mean and $\sigma^2$ is the variance.
+  \end{definition}
+  \pause
+         \begin{figure}
+          \centering
+          \begin{tikzpicture}[scale=0.6,transform shape]
+            \begin{axis}[xlabel=$x$,ylabel=$p(x)$,xmax=5,xmin=-5,ymax=0.4,ymin=-0.1,grid=major]
+              \addplot[color=blue,very thick,domain=-5:5,samples=100] gnuplot{exp(-x*x/(2*2))/sqrt(2*pi*2)};
+            \end{axis}
+          \end{tikzpicture}
+      \end{figure}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Notation}
+  \footnotesize
+  \begin{itemize}
+    \item $N(\mu,\sigma^2)$ denotes a Gaussian distribution with mean $\mu$ and variance $\sigma^2$
+    \pause
+    \item $X \sim N(\mu,\sigma^2) \Rightarrow X$ is a Gaussian RV with mean $\mu$ and variance $\sigma^2$
+    \pause
+    \item If $X \sim N(0,1)$, then $X$ is a standard Gaussian RV
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Affine Transformations Preserve Gaussianity}
+  \footnotesize
+  \pause
+  \begin{theorem}[]
+    If $X$ is Gaussian, then $aX+b$ is Gaussian \pause for $a, b \in \mathbb{R}, a \neq 0$.
+  \end{theorem}
+  \pause
+  \begin{block}{Remarks}
+  \begin{itemize}
+    \item If $X \sim N(\mu,\sigma^2)$, then $aX+b \sim \pause N(a\mu+b, a^2\sigma^2)$. 
+    \pause
+    \item If $X \sim N(\mu,\sigma^2)$, then $\frac{X-\mu}{\sigma} \sim \pause N(0,1)$.
+  \end{itemize}
+  \end{block}
+  \normalsize
+\end{frame}
+
+%% Frame 
+\begin{frame}{CDF and CCDF of Standard Gaussian}
+  \footnotesize
+  \begin{itemize}
+    \item Cumulative distribution function of $X \sim N(0,1)$
+      \begin{equation*}
+        \Phi(x) = P\left[X \leq x \right] = \int_{-\infty}^{x} \frac{1}{\sqrt{2\pi}} \exp{\left(\frac{-t^2}{2}\right)} \ dt
+      \end{equation*}
+    \pause
+    \item Complementary cumulative distribution function of $X \sim N(0,1)$
+      \begin{equation*}
+        Q(x) = P\left[X > x \right] = \int_{x}^{\infty} \frac{1}{\sqrt{2\pi}} \exp{\left(\frac{-t^2}{2}\right)} \ dt
+      \end{equation*}
+  \end{itemize}
+  \pause
+  \begin{figure}
+    \centering
+      \begin{tikzpicture}[scale=0.55,transform shape]
+        \begin{axis}[
+                     title=$p(t)$,
+                     xmax=5.9,
+                     xmin=-5.9,
+                     ymax=0.3,
+                     ymin=-0.01,
+                     axis lines = middle,
+                     xtick = {1,5.8},
+                     xticklabels = {$x$,$t$},
+                     ytick=\empty,
+                     x post scale = 2.0
+                    ]
+              \addplot[color=blue,fill=blue,fill opacity=0.5,area legend, very thick,domain=1:6,samples=100] gnuplot{exp(-x*x/(2*2))/sqrt(2*pi*2)} \closedcycle;
+              \addlegendentry{$Q(x)$}
+              \addplot[color=red,fill=red,fill opacity=0.5,area legend, very thick,domain=-6:1,samples=100] gnuplot{exp(-x*x/(2*2))/sqrt(2*pi*2)} \closedcycle;
+              \addlegendentry{$\Phi(x)$}
+
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Properties of $Q(x)$}
+  \footnotesize
+  \begin{itemize}
+    \item $\Phi(x) + Q(x) = \pause 1$
+    \pause
+    \item $Q(-x) = \pause \Phi(x) = \pause 1 - Q(x)$
+    \pause
+    \item $Q(0) = \pause \frac{1}{2}$
+    \pause
+    \item $Q(\infty) = \pause 0$
+    \pause
+    \item $Q(-\infty) = \pause 1$
+    \pause
+    \item $X \sim N(\mu,\sigma^2)$
+      \begin{equation*}
+        P[X > \alpha] = \pause Q\left(\frac{\alpha-\mu}{\sigma}\right)
+      \end{equation*}
+      \pause
+      \begin{equation*}
+        P[X < \alpha] = \pause Q\left(\frac{\mu-\alpha}{\sigma}\right)
+      \end{equation*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Jointly Gaussian Random Variables}
+  \footnotesize
+  \pause
+  \begin{definition}[Jointly Gaussian RVs]
+  Random variables $X_1,X_2,\ldots,X_n$ are jointly Gaussian if any non-trivial linear combination is a Gaussian random variable.
+  \pause
+  \begin{equation*}
+    a_1X_1+\cdots+a_nX_n \text{ is Gaussian for all } (a_1,\ldots,a_n) \in \mathbb{R}^n \setminus \mathbf{0}
+  \end{equation*}
+  \end{definition}
+  \pause
+  \begin{example}[Not Jointly Gaussian]
+  $X\sim N(0,1)$
+  \begin{equation*}
+    Y = \left\{
+          \begin{array}{rr}
+          X, & \text{if } \lvert X \rvert > 1 \\
+          -X, & \text{if } \lvert X \rvert \leq 1 
+          \end{array}
+        \right.
+  \end{equation*}
+  \pause
+  $Y \sim N(0,1)$ \pause and $X+Y$ is not Gaussian.
+  \end{example}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Gaussian Random Vector}
+  \footnotesize
+  \pause
+  \begin{definition}[Gaussian Random Vector]
+  A random vector $\mathbf{X} = (X_1,  \ldots,  X_n)^T$ whose components are jointly Gaussian.
+  \end{definition}
+  \pause
+  \begin{block}{Notation}
+  $\mathbf{X} \sim N(\mathbf{m},\mathbf{C})$ where 
+  \begin{eqnarray*}
+  \mathbf{m} = E[\mathbf{X}], \ \  \mathbf{C} = E\left[ (\mathbf{X}-\mathbf{m})(\mathbf{X}-\mathbf{m})^T\right]
+  \end{eqnarray*}
+  \end{block}
+  \pause
+  \begin{definition}[Joint Gaussian Density]
+  If $\mathbf{C}$ is invertible, the joint density is given by
+    \begin{equation*}
+      p(\mathbf{x}) = \frac{1}{\sqrt{(2\pi)^m\det(\mathbf{C})}} \exp\left(-\frac{1}{2} (\mathbf{x}-\mathbf{m})^T\mathbf{C}^{-1}(\mathbf{x}-\mathbf{m})\right)
+    \end{equation*}
+  \end{definition}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Uncorrelated Random Variables}
+  \footnotesize
+  \pause
+  \begin{definition}[]
+  $X_1$ and $X_2$ are uncorrelated if $\cov(X_1,X_2) = 0$
+  \end{definition}
+  \pause
+  \begin{block}{Remarks}
+    For uncorrelated random variables $X_1,\ldots,X_n$,
+      \begin{equation*}
+        \var(X_1+\cdots+X_n) = \pause \var(X_1)+\cdots+\var(X_n).
+      \end{equation*}
+    \pause
+    If $X_1$ and $X_2$ are independent,
+      \begin{equation*}
+        \cov(X_1,X_2) = \pause 0.
+      \end{equation*}
+    \pause
+    Correlation coefficient is defined as
+      \begin{equation*}
+        \rho(X_1,X_2) = \pause \frac{\cov(X_1,X_2)}{\sqrt{\var(X_1)\var(X_2)}}.
+      \end{equation*}
+  \end{block}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Uncorrelated Jointly Gaussian RVs are Independent}
+  \footnotesize
+  \pause
+  If $X_1,\ldots,X_n$ are jointly Gaussian and pairwise uncorrelated, then they are independent.
+  \begin{eqnarray*}
+    p(\mathbf{x}) & = & \frac{1}{\sqrt{(2\pi)^m\det(\mathbf{C})}} \exp\left(-\frac{1}{2} (\mathbf{x}-\mathbf{m})^T\mathbf{C}^{-1}(\mathbf{x}-\mathbf{m})\right) \\
+                  \pause
+                  & = &  \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma_i^2}} \exp\left(-\frac{(x_i-m_i)^2}{2\sigma_i^2}\right)
+  \end{eqnarray*}
+  where $m_i = E[X_i]$ and $\sigma_i^2 = \var(X_i)$.
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Uncorrelated Gaussian RVs may not be Independent}
+  \footnotesize
+  \begin{block}{Example}
+    \begin{itemize}
+      \item $X \sim N(0,1)$
+      \pause
+      \item $W$ is equally likely to be +1 or -1
+      \pause
+      \item $W$ is independent of $X$
+      \pause
+      \item $Y = WX$
+      \pause
+      \item $Y \sim \pause N(0,1)$
+      \pause
+      \item $X$ and $Y$ are uncorrelated
+      \pause
+      \item $X$ and $Y$ are not independent
+    \end{itemize}
+  \end{block}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{}
+\vfill
+\begin{center}
+Thanks for your attention
+\end{center}
+\vfill
+\end{frame}
+
+
+\end{document}

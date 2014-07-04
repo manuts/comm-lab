@@ -1,0 +1,373 @@
+\documentclass[t]{beamer}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{ulem}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\wt}{\operatornamewithlimits{wt}}
+\renewcommand\Re{\operatorname{Re}}
+\renewcommand\Im{\operatorname{Im}}
+
+\mode<presentation>
+{
+  \usetheme{Singapore}
+  %\useoutertheme{infolines} % Showing only current section in navigation
+  \setbeamertemplate{headline}{}  % Empty headline
+  \setbeamertemplate{footline}[frame number]  % Getting rid of footer items except slide number
+  \setbeamercovered{invisible}
+  \beamertemplatenavigationsymbolsempty % Getting rid of navigation bullets at the bottom
+}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+
+\title[EE 703 DMT]{Optimal Receiver using Complex Baseband Representation}
+\author[Saravanan V]
+{
+  Saravanan Vijayakumaran\\
+  \href{mailto:sarva@ee.iitb.ac.in}{sarva@ee.iitb.ac.in}
+}
+\institute[IIT Bombay]
+{
+  Department of Electrical Engineering\\
+  Indian Institute of Technology Bombay
+}
+\date{September 26, 2013}
+
+\AtBeginSection[]%
+{%
+\begin{frame}[plain]%
+  \topskip0pt
+  \vspace*{\fill}
+    \begin{center}%
+      \usebeamerfont{section title}\insertsection%
+    \end{center}%
+  \vspace*{\fill}
+\end{frame}%
+}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Passband Signals in Passband Noise}
+  \footnotesize
+  Consider $M$-ary passband signaling over a channel with passband Gaussian noise
+    \begin{equation*}
+      H_i  :  y_p(t) = s_{i,p}(t) + n_p(t), \ \ i=1,\ldots,M
+    \end{equation*}
+    \pause where 
+      \begin{description}
+        \item[$y_p(t)$] Real passband received signal
+        \pause
+        \item[$s_{i,p}(t)$] Real passband signals
+        \pause
+        \item[$n_p(t)$] Real passband GN with PSD $\frac{N_0}{2}$
+      \end{description}
+  \pause
+  \begin{figure}
+    \centering
+      \begin{tikzpicture}[scale=0.5,transform shape]
+        \begin{axis}[
+                     xmax=9,
+                     xmin=-9,
+                     ymax=2,
+                     ymin=-0.5,
+                     axis lines = middle,
+                     ytick={0.3},
+                     xtick = {-5,5,9},
+                     xticklabels = {$-f_c$,$f_c$,$f$},
+                     yticklabels = {\raisebox{5.5ex}{$\frac{N_0}{2}$}},
+                     x post scale = 3.0
+                    ]
+          \addplot[color=blue,very thick] coordinates {(-6,0) (-6,1) (-4,1) (-4,0)};
+          \addlegendentry{Signal}
+          \addplot[color=red,very thick] coordinates {(-8,0) (-8,0.3) (-2,0.3) (-2,0)};
+          \addlegendentry{Noise}
+          \addplot[color=red,very thick] coordinates {(8,0) (8,0.3) (2,0.3) (2,0)};
+          \addplot[color=blue,very thick] coordinates {(6,0) (6,1) (4,1) (4,0)};
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+  \pause Note: A WSS random process is passband if its autocorrelation function is a passband signal
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Passband Signals in Passband Noise}
+  \footnotesize
+  Consider $M$-ary passband signaling over a channel with passband Gaussian noise
+    \begin{equation*}
+      H_i  :  y_p(t) = s_{i,p}(t) + n_p(t), \ \ i=1,\ldots,M
+    \end{equation*}
+    where 
+      \begin{description}
+        \item[$y_p(t)$] Real passband received signal
+        \item[$s_{i,p}(t)$] Real passband signals
+        \item[$n_p(t)$] Real passband GN with PSD $\frac{N_0}{2}$
+      \end{description}
+  The equivalent problem in complex baseband is
+    \begin{equation*}
+      H_i  :  y(t) = s_i(t) + n(t), \ \ i=1,\ldots,M
+    \end{equation*}
+    \pause where
+      \begin{description}
+        \item[$y(t)$] Complex envelope of $y_p(t)$
+        \pause
+        \item[$s_i(t)$] Complex envelope of $s_{i,p}(t)$
+        \pause
+        \item[$n(t)$] Complex envelope of $n_p(t)$
+      \end{description}
+    \pause \alert{What is the optimal receiver in terms of the complex baseband signals?}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Complex Envelope of Passband Gaussian Noise}
+  \footnotesize
+  \begin{itemize}
+    \item \pause The complex baseband representation of $n_p(t)$ is given by
+      \begin{equation*}
+        n(t) =  n_c(t) + j n_s(t) = \pause \frac{1}{\sqrt{2}}\left[ n_p(t) + j\hat{n}_p(t)\right]e^{\ -j2\pi f_c t} \pause
+      \end{equation*}
+    where $\hat{n}_p(t)$ is the Hilbert transform of $n_p(t)$
+    \item \pause The inphase and quadrature components of $n(t)$ are given by
+      \begin{eqnarray*}
+        n_c(t) & = & \pause \frac{1}{\sqrt{2}} \left[ n_p(t) \cos 2\pi f_c t + \hat{n}_p(t) \sin 2\pi f_c t\right] \\ \pause
+        n_s(t) & = & \pause \frac{1}{\sqrt{2}} \left[ \hat{n}_p(t) \cos 2\pi f_c t - n_p(t) \sin 2\pi f_c t\right] 
+      \end{eqnarray*}
+    \item \pause $n_c(t)$ and $n_s(t)$ are jointly Gaussian and independent random processes \pause (Proof in Proakis Section 2.9)
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{In-Phase and Quadrature Component PSDs}
+  \footnotesize
+  \begin{eqnarray*}
+    \pause  S_{n_p}(f) = \left\{ \begin{array}{ll} \frac{N_0}{2} & \lvert f -f_c \rvert < W \\
+                                            0 & \text{otherwise}
+                          \end{array} \right.
+  \end{eqnarray*}
+  \begin{figure}
+    \centering
+      \begin{tikzpicture}[scale=0.35,transform shape]
+        \begin{axis}[
+                     title=Passband Gaussian Noise PSD,
+                     xmax=9,
+                     xmin=-9,
+                     ymax=1.5,
+                     ymin=-0.5,
+                     axis lines = middle,
+                     ytick={0.3},
+                     xtick = {-5,5,9},
+                     xticklabels = {$-f_c$,$f_c$,$f$},
+                     yticklabels = {$\frac{N_0}{2}$},
+                     x post scale = 3.0
+                    ]
+          \addplot[color=red,very thick] coordinates {(8,0) (8,0.3) (2,0.3) (2,0)};
+          \addplot[color=red,very thick] coordinates {(-8,0) (-8,0.3) (-2,0.3) (-2,0)};
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+  \begin{eqnarray*}
+    \pause S_{n_c}(f) = S_{n_s}(f) \pause = \left\{ \begin{array}{ll} \frac{N_0}{2} & \lvert f \rvert < W \\
+                                                      0 & \text{otherwise}
+                                    \end{array} \right. 
+  \end{eqnarray*}
+  \pause
+  \begin{figure}
+    \centering
+      \begin{tikzpicture}[scale=0.35,transform shape]
+        \begin{axis}[
+                     title=In-Phase and Quadrature Component PSDs,
+                     xmax=9,
+                     xmin=-9,
+                     ymax=1.5,
+                     ymin=-0.5,
+                     axis lines = middle,
+                     ytick={0.3},
+                     xtick = {-5,5,9},
+                     xticklabels = {$-f_c$,$f_c$,$f$},
+                     yticklabels = {\raisebox{4.5ex}{$\frac{N_0}{2}$}},
+                     x post scale = 3.0
+                    ]
+          \addplot[color=red,very thick] coordinates {(-3,0) (-3,0.3) (3,0.3) (3,0)};
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Complex Envelope PSD}
+  \footnotesize
+  \begin{itemize}
+    \item \pause By the independence of $n_c(t)$ and $n_s(t)$, we have
+      \begin{equation*}
+        R_{n}(\tau) = \pause E\left[ n(t+\tau)n^*(t)\right] \pause = R_{n_c}(\tau) + R_{n_s}(\tau)
+      \end{equation*}
+    \item \pause $S_n(f) = \pause S_{n_c}(f) + S_{n_s}(f)$
+  \end{itemize}
+  \pause
+  \begin{figure}
+    \centering
+      \begin{tikzpicture}[scale=0.45,transform shape]
+        \begin{axis}[
+                     title=Complex Envelope PSD,
+                     xmax=9,
+                     xmin=-9,
+                     ymax=1.5,
+                     ymin=-0.5,
+                     axis lines = middle,
+                     ytick={0.6},
+                     xtick = {-5,5,9},
+                     xticklabels = {$-f_c$,$f_c$,$f$},
+                     yticklabels = {\raisebox{4.5ex}{$N_0$}},
+                     x post scale = 3.0
+                    ]
+          \addplot[color=red,very thick] coordinates {(-3,0) (-3,0.6) (3,0.6) (3,0)};
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+  \begin{itemize}
+    \item \pause If $n_c(t)$ and $n_s(t)$ are approximated by white Gaussian noise, $n(t)$ is said to be complex white Gaussian noise
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Complex White Gaussian Noise}
+  \footnotesize
+  \pause
+  \begin{definition}[Complex Gaussian Random Process]
+    A complex random process $Z(t) = X(t) + jY(t)$ is a Gaussian random process if $X(t)$ and $Y(t)$ are jointly Gaussian random processes.
+  \end{definition}
+  \pause
+  \begin{definition}[Complex White Gaussian Noise]
+    A complex Gaussian random process $Z(t) = X(t) + jY(t)$ is complex white Gaussian noise with PSD $N_0$ if $X(t)$ and $Y(t)$ are independent white Gaussian noise processes with PSD $\frac{N_0}{2}$.
+  \end{definition}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Optimal Detection in Complex Baseband}
+  \footnotesize
+  \begin{itemize}
+    \item The continuous time hypothesis testing problem in complex baseband 
+      \begin{equation*}
+        H_i  :  y(t) = s_i(t) + n(t), \ \ i=1,\ldots,M
+      \end{equation*}
+      where
+        \begin{description}
+          \item[$y(t)$] Complex envelope of $y_p(t)$
+          \item[$s_i(t)$] Complex envelope of $s_{i,p}(t)$
+          \item[$n(t)$] Complex white Gaussian noise with PSD $N_0 = 2\sigma^2$
+        \end{description}
+    \item \pause The equivalent problem in terms of complex random vectors
+      \begin{equation*}
+        H_i  :  \mathbf{Y} = \mathbf{s}_i + \mathbf{N}, \ \ i=1,\ldots,M
+      \end{equation*}
+      where $\mathbf{Y}$, $\mathbf{s}_i$ and $\mathbf{N}$ are the projections of $y(t)$, $s_i(t)$ and $n(t)$ respectively onto the signal space spanned by $\{s_i(t)\}$.
+    \item \pause $\mathbf{m} = E[\mathbf{N}] = \pause \mathbf{0}$, \pause $\mathbf{C_N} = \pause 2\sigma^2 \mathbf{I}$
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Complex White Gaussian Noise through Correlators}
+  \footnotesize
+  \begin{eqnarray*}
+    \text{cov}\left( \langle n, \psi_1 \rangle, \langle n, \psi_2 \rangle \right) & = & \pause E\left[ \langle n, \psi_1 \rangle \left(\langle n, \psi_2 \rangle\right)^* \right] \\
+    & = & \pause E \left[ \int n(t) \psi_1^*(t) \ dt \int n^*(s) \psi_2(s) \ ds \right] \\
+    & = & \pause \int \int \psi_2(t) \psi_2^*(s) E\left[ n(t) n^*(s) \right] \ dt \ ds \\
+    & = & \pause \int \int \psi_2(t) \psi_1^*(s) 2\sigma^2 \delta(t-s) \ dt \ ds \\
+    & = & \pause 2\sigma^2 \int \psi_2(t) \psi_1^*(t) \ dt \\
+    & = & \pause 2\sigma^2 \langle \psi_2, \psi_1 \rangle
+  \end{eqnarray*}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{MPE and ML Rules in Complex Baseband}
+  \footnotesize
+  \begin{itemize}
+    \item \pause $\mathbf{N}$ is a circularly symmetric Gaussian vector \pause and the pdf of $\mathbf{Y}$ under $H_i$ is
+      \begin{eqnarray*}
+        p_i(\mathbf{y}) & = & \frac{1}{\pi^K\det(\mathbf{C}_{\mathbf{N}})} \exp\left(-(\mathbf{y}-\mathbf{s_i})^H\mathbf{C}_{\mathbf{N}}^{-1}(\mathbf{y}-\mathbf{s_i})\right) \\ \pause
+                        & = & \frac{1}{(2\pi \sigma^2)^K} \exp\left( -\frac{\lVert \mathbf{y} - \mathbf{s}_i\rVert^2}{2\sigma^2}\right)
+      \end{eqnarray*}
+    \item \pause The MPE rule is given by
+      \begin{eqnarray*}
+        \delta_{MPE}(\mathbf{y}) & = & \pause \argmax_{1 \leq i \leq M} \pause \Re \left( \langle \mathbf{y}, \mathbf{s}_i \rangle \right) - \frac{\lVert \mathbf{s}_i \rVert^2}{2} + \sigma^2 \log \pi_i \\ \pause
+                                 & = & \argmax_{1 \leq i \leq M} \Re \left( \langle y, s_i \rangle \right) - \frac{\lVert s_i \rVert^2}{2}+ \sigma^2 \log \pi_i 
+      \end{eqnarray*}
+    \item \pause The ML rule is given by
+      \begin{eqnarray*}
+        \delta_{ML}(\mathbf{y}) & = & \argmin_{1 \leq i \leq M} \lVert \mathbf{y} - \mathbf{s}_i \rVert^2 \pause = \argmax_{1 \leq i \leq M} \Re \left( \langle \mathbf{y}, \mathbf{s}_i \rangle \right) - \frac{\lVert \mathbf{s}_i \rVert^2}{2}  \\ \pause 
+                                & = & \argmin_{1 \leq i \leq M} \lVert y - s_i \rVert^2 = \argmax_{1 \leq i \leq M} \Re \left( \langle y, s_i \rangle \right) - \frac{\lVert s_i \rVert^2}{2}
+      \end{eqnarray*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{ML Receiver for QPSK}
+  \footnotesize
+  QPSK signals where $p(t)$ is a real baseband pulse, $A$ is a real number and $1 \leq m \leq 4$
+    \begin{eqnarray*}
+      s_m^p(t) & = & \sqrt{2}Ap(t)\cos \left( 2\pi f_c t + \frac{\pi(2m-1)}{4}\right) \\
+               \pause
+               & = & \Re\left[\sqrt{2}Ap(t)e^{\ j\left(2\pi f_c t + \frac{\pi(2m-1)}{4}\right)}\right] 
+    \end{eqnarray*}
+  \pause
+  Complex Envelope of QPSK Signals
+    \begin{equation*}
+      s_m(t) = Ap(t)e^{\ j\frac{\pi(2m-1)}{4}}, \ \ \ \ 1 \leq m \leq 4
+    \end{equation*}
+  Orthonormal basis for the complex envelope consists of \pause only
+    \begin{equation*}
+      \phi(t) = \frac{p(t)}{\sqrt{E_p}}
+    \end{equation*}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{ML Receiver for QPSK}
+  \footnotesize
+  Let $\sqrt{E_b} = \frac{A\sqrt{E_p}}{\sqrt{2}}$. The vector representation of the QPSK signals is
+    \begin{eqnarray*}
+      s_1 & = &  \sqrt{E_b} + j\sqrt{E_b} \\ \pause
+      s_2 & = & -\sqrt{E_b} + j\sqrt{E_b} \\ \pause
+      s_3 & = & -\sqrt{E_b} - j\sqrt{E_b} \\ \pause
+      s_4 & = &  \sqrt{E_b} - j\sqrt{E_b} 
+    \end{eqnarray*}
+  \pause The hypothesis testing problem in terms of vectors is
+    \begin{equation*}
+      H_i  :  Y = s_i + N, \ \ i=1,\ldots,4
+    \end{equation*}
+    \pause where  $N \sim \mathcal{CN}(0, 2\sigma^2)$
+
+  \pause The ML rule is given by
+      \begin{equation*}
+        \delta_{ML}(y) = \pause \argmin_{1 \leq i \leq 4} \lVert y - s_i \rVert^2
+      \end{equation*}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{}
+\vfill
+\begin{center}
+Thanks for your attention
+\end{center}
+\vfill
+\end{frame}
+
+\end{document}

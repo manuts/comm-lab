@@ -1,0 +1,61 @@
+\documentclass[10pt]{report}
+\usepackage{./EE703handout}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{decorations.pathmorphing}
+\usepackage{mathtools}
+\usepackage{subfig}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{verbatim}
+\usepackage{amssymb}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\setlength{\textheight}{9.4in}     % 9.4in
+\setlength{\textwidth}{6.3in}      % 6.3in
+\setlength{\parindent}{0mm}
+%\setlength{\parskip}{3mm}
+\setlength{\oddsidemargin}{0.0in}  % 0.0in
+\setlength{\topmargin}{-0.5in}  % 0.0in
+\setlength{\headheight}{0.0in}  % 0.0in
+
+\renewcommand\Re{\operatorname{Re}}
+\renewcommand\Im{\operatorname{Im}}
+
+\begin{document}
+\handout{}{Due Date: October 10, 2013}{Assignment 4}
+\begin{enumerate}
+  \item A complex random vector $\mathbf{Z} = \mathbf{X}+j\mathbf{Y}$ is said to a complex Gaussian vector if $\mathbf{X}$ and $\mathbf{Y}$ are jointly Gaussian vectors. In other words, $\mathbf{Z}$ is a complex Gaussian vector if the components of $\tilde{\mathbf{Z}}$ are jointly Gaussian where 
+  \begin{equation*}
+    \tilde{\mathbf{Z}} = \begin{bmatrix} \mathbf{X} \\ \mathbf{Y}\end{bmatrix}.
+  \end{equation*}
+  Prove that $\mathbf{U} = e^{j\phi}\mathbf{Z}$ is a complex Gaussian vector when $\mathbf{Z}$ is a complex Gaussian vector by showing that the components of the following vector are jointly Gaussian.
+  \begin{equation*}
+    \tilde{\mathbf{U}} = \begin{bmatrix} \Re(e^{j\phi}\mathbf{Z}) \\ \Im(e^{j\phi}\mathbf{Z})\end{bmatrix} = \begin{bmatrix} \mathbf{X}\cos \phi - \mathbf{Y}\sin\phi \\ \mathbf{X}\sin\phi + \mathbf{Y}\cos\phi\end{bmatrix}
+  \end{equation*}
+  \textit{Hint:} To show that the components of $\tilde{\mathbf{U}}$ are jointly Gaussian, show that for any $a_i$'s and $b_i$'s not all of which are zero 
+  \begin{equation*}
+    \sum_{i=1}^n a_i (X_i\cos\phi-Y_i\sin\phi) + \sum_{i=1}^n b_i (X_i\sin\phi+Y_i\cos\phi)
+  \end{equation*}
+  is a Gaussian random variable. Think about when it can fail to be a Gaussian random variable and arrive at a contradiction.
+  \item Let $\psi_1(t), \psi_2(t),\ldots,\psi_K(t)$ be a complex orthonormal basis. Let $n(t) = n_c(t)+jn_s(t)$ be complex white Gaussian noise with PSD $2\sigma^2$. Then $n_c(t)$ and $n_s(t)$ are independent real WGN processes with PSD $\sigma^2$. Consider the projection of $n(t)$ onto the orthonormal basis
+  \begin{equation*}
+    \mathbf{N} = \begin{bmatrix} \langle n, \psi_1 \rangle \\ \vdots \\ \langle n, \psi_K \rangle \end{bmatrix}.
+  \end{equation*}
+  Show that $\mathbf{N}$ is a complex Gaussian vector i.e.~the components of the following vector are jointly Gaussian.
+  \begin{equation*}
+    \tilde{\mathbf{N}} = \begin{bmatrix} \Re(\langle n, \psi_1 \rangle) \\ \vdots \\ \Re(\langle n, \psi_K \rangle) \\ \Im(\langle n, \psi_1 \rangle) \\ \vdots \\ \Im(\langle n, \psi_K \rangle) \end{bmatrix}.
+  \end{equation*}
+  \textit{Hint:} Let $\psi_i(t) = \alpha_i(t) + j\beta_i(t)$. Let 
+  \begin{eqnarray*}
+    X_i & = & \Re(\langle n, \psi_i \rangle) = \langle n_c, \alpha_i \rangle + \langle n_s, \beta_i \rangle \\
+    Y_i & = & \Im(\langle n, \psi_i \rangle) = \langle n_s, \alpha_i \rangle - \langle n_c, \beta_i \rangle.
+  \end{eqnarray*}
+  To show that the components of $\tilde{\mathbf{N}}$ are jointly Gaussian, show that for any $a_i$'s and $b_i$'s not all of which are zero 
+  \begin{equation*}
+    \sum_{i=1}^n a_i X_i + \sum_{i=1}^n b_i Y_i
+  \end{equation*}
+  is a Gaussian random variable. Think about when it can fail to be a Gaussian random variable and arrive at a contradiction.
+
+
+\end{enumerate}
+\end{document}

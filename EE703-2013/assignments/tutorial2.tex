@@ -1,0 +1,169 @@
+\documentclass[10pt]{report}
+\usepackage{./EE703handout}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.8}
+\usetikzlibrary{decorations.pathmorphing}
+\usepackage{mathtools}
+\usepackage{subfig}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{verbatim}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\setlength{\textheight}{9.4in}     % 9.4in
+\setlength{\textwidth}{7.3in}      % 6.3in
+\setlength{\parindent}{0mm}
+%\setlength{\parskip}{3mm}
+\setlength{\oddsidemargin}{-0.5in}  % 0.0in
+\setlength{\topmargin}{-1.0in}  % 0.0in
+\setlength{\headheight}{0.0in}  % 0.0in
+
+\newcommand{\cov}{\operatornamewithlimits{cov}}
+
+\begin{document}
+\handout{}{Date: October 11, 2013}{Tutorial 2}
+\begin{enumerate}
+  \item \textbf{(Madhow Problem 3.2)} Let $\mathbf{X} = \begin{bmatrix} X_1 & X_2\end{bmatrix}^T$ be a Gaussian random vector with mean $\mathbf{m}$ and covariance $\mathbf{C}$ given by
+    \begin{equation*}
+      \mathbf{m} = \begin{bmatrix} 2 \\ 1\end{bmatrix}, \ \ \ \ \mathbf{C} = \begin{bmatrix} 1 & -1 \\ -1 & 4 \end{bmatrix}.
+    \end{equation*}
+    \begin{enumerate}
+      \item Let $Y_1 = X_1+2X_2$, $Y_2 = -X_1+X_2$. Find $\cov(Y_1,Y_2)$.
+      \item Write down the joint density of $Y_1$ and $Y_2$.
+      \item Express $\Pr[Y_1 > 2Y_2 + 1]$ in terms of the $Q$ function.
+    \end{enumerate}
+  \item \textbf{(Proakis Problem 4.42)} Suppose the input $X$ and output $Y$ to a channel are related by $Y = \rho X + N$ where $N$ is a zero-mean Gaussian random variable with variance $\sigma^2$ and $\rho$ is a random variable independent of the noise. Assume that $X$ is equally likely to be $\pm A$.
+    \begin{enumerate}
+      \item If $\rho$ is the constant $1$, what is the optimal decision rule and the resulting error probability?
+      \item If $\rho$ takes values $\pm 1$ with equal probability, what is the optimal decision rule and the resulting error probability?
+      \item If $\rho$ takes values $0$ and $1$ with equal probability, what is the optimal decision rule and the resulting error probability?
+    \end{enumerate}
+  \item \textbf{(Proakis Problem 4.5)} A communication system transmits one of three messages $m_1, m_2,$ and $m_3$ using signals $s_1(t)$, $s_2(t)$, and $s_3(t)$. The signal $s_3(t) = 0$ and the signals $s_1(t)$ and $s_2(t)$ are shown below. The channel is AWGN channel with noise PSD $\frac{N_0}{2}$.
+  \begin{figure}[h]
+    \centering
+      \begin{tikzpicture}[scale=0.75,transform shape]
+        \begin{axis}[
+                     title=$s_1(t)$,
+                     xmax=3.5,
+                     xmin=0,
+                     ymax=2.5,
+                     ymin=-2.5,
+                     axis lines = middle,
+                     yticklabels ={$A$,$-A$},
+                     xtick = {0,1,3,3.5},
+                     xticklabels = {$0$,$\frac{T}{3}$,$T$},
+                     ytick= {1,-1},
+                     xticklabel shift = -20pt,
+                    ]
+          \addplot[color=blue,very thick] coordinates {(0,1) (1,1) (1,-1) (3,-1) (3,0)};
+        \end{axis}
+      \end{tikzpicture}
+    \centering
+      \begin{tikzpicture}[scale=0.75,transform shape]
+        \begin{axis}[
+                     title=$s_2(t)$,
+                     xmax=3.5,
+                     xmin=0,
+                     ymax=2.5,
+                     ymin=-2.5,
+                     axis lines = middle,
+                     ytick={2,-2},
+                     xtick = {0,1,3,3.5},
+                     xticklabels = {$0$,$\frac{T}{3}$,$T$},
+                     yticklabels = {$2A$,$-2A$},
+                     xticklabel shift = -20pt,
+                    ]
+          \addplot[color=blue,very thick] coordinates {(0,2) (1,2) (1,-2) (3,-2) (3,0)};
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+  \begin{enumerate}
+    \item Determine an orthonormal basis for this signal set, and depict the signal constellation.
+    \item If the three messages are equiprobable, what is the optimal decision rule?
+    \item What is the average decision error probability of the optimal decision rule in terms of $E_b$ and $N_0$?
+  \end{enumerate}
+  \newpage
+  \item \textbf{(Proakis Problem 4.26)} A binary signaling scheme over an AWGN channel with noise PSD $\frac{N_0}{2}$ is equally likely to transmit the following two signals. One of the two signals is transmitted every $T$ seconds.
+ \begin{figure}[h]
+    \centering
+      \begin{tikzpicture}[scale=0.75,transform shape]
+        \begin{axis}[
+                     title=$s_1(t)$,
+                     xmax=2.5,
+                     xmin=0,
+                     ymax=2.5,
+                     ymin=-0.5,
+                     axis lines = middle,
+                     yticklabels ={1,2},
+                     xtick = {0,1,2,3.5},
+                     xticklabels = {$0$,$\frac{T}{2}$,$T$},
+                     ytick= {1,2},
+                    ]
+          \addplot[color=blue,very thick] coordinates {(0,2) (1,2) (1,1) (2,1) (2,0)};
+        \end{axis}
+      \end{tikzpicture}
+    \centering
+      \begin{tikzpicture}[scale=0.75,transform shape]
+        \begin{axis}[
+                     title=$s_2(t)$,
+                     xmax=2.5,
+                     xmin=0,
+                     ymax=2.5,
+                     ymin=-0.5,
+                     axis lines = middle,
+                     ytick= {1,2},
+                     xtick = {0,1,2,3.5},
+                     xticklabels = {$0$,$\frac{T}{2}$,$T$},
+                     yticklabels ={1,2},
+                    ]
+          \addplot[color=blue,very thick] coordinates {(0,1) (1,1) (1,2) (2,2) (2,0)};
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+  \begin{enumerate}
+    \item What is the $E_b$ for this system in terms of $T$?
+    \item What is the optimal decision rule?
+    \item What is the average decision error probability of the optimal decision rule in terms of $E_b$ and $N_0$?
+    \item By how many decibels does this system underperform a binary antipodal signaling system with the same $\frac{E_b}{N_0}$?
+  \end{enumerate}
+  \item \textbf{(Proakis Problem 4.41)} A digital communication system with two equally probable messages uses the following signals.
+    \begin{equation*}
+      s_1(t) = \left\{ \begin{array}{ll}
+                         1 & 0 \leq t < 1 \\
+                         2 & 1 \leq t < 2 \\
+                         0 & \text{otherwise}
+                       \end{array} 
+               \right., \ \ \ \ \ 
+      s_2(t) = \left\{ \begin{array}{ll}
+                         1 & 0 \leq t < 1 \\
+                         -2 & 1 \leq t < 2 \\
+                         0 & \text{otherwise}
+                       \end{array} 
+               \right.
+    \end{equation*}
+    \begin{enumerate}
+      \item Assuming an AWGN channel with PSD $\frac{N_0}{2}$, what is the average decision error probability of the optimal decision rule in terms of $E_b$ and $N_0$?
+      \item Assume we are using a two-path channel shown below in which we receive both $r_1(t)$ and $r_2(t)$ at the receiver. Both $n_1(t)$ and $n_2(t)$ are independent white Gaussian noise processes with PSD $\frac{N_0}{2}$. Determine the structure of the optimal receiver and its average decision error probability.
+        \begin{figure}[h]
+          \centering
+            \begin{tikzpicture}[scale=1,transform shape]
+              \tikzstyle{circblock}=[circle, draw]
+              \tikzstyle{rectblock}=[rectangle, draw]
+              \node at (-1,6.75) (st) {$s_i(t)$};
+              \node at (6,5.5) (r2) {$r_2(t)$};
+              \node at (6,8) (r1) {$r_1(t)$};
+              \node[circblock] at (3,8) (sum1) {$+$};
+              \node[circblock] at (3,5.5) (sum2) {$+$};
+              \draw[->,very thick] (st) --++(1,0) |- (sum1);
+              \draw[->,very thick] (st) --++(1,0) |- (sum2);
+              \node[above=0.4 of sum1] (phi1) {$n_1(t)$};
+              \node[above=0.4 of sum2] (phi2) {$n_2(t)$};
+              \draw[->,very thick] (phi1) -- (sum1);
+              \draw[->,very thick] (phi2) -- (sum2);
+              \draw[->,very thick] (sum1) -- (r1);
+              \draw[->,very thick] (sum2) -- (r2);
+            \end{tikzpicture}
+        \end{figure}
+    \end{enumerate}
+\end{enumerate}
+\end{document}

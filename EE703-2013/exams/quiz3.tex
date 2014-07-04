@@ -1,0 +1,93 @@
+\documentclass[10pt]{report}
+\usepackage{./EE703handout}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{decorations.pathmorphing}
+\usepackage{mathtools}
+\usepackage{subfig}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{verbatim}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\setlength{\textheight}{9.4in}     % 9.4in
+\setlength{\textwidth}{6.3in}      % 6.3in
+\setlength{\parindent}{0mm}
+%\setlength{\parskip}{3mm}
+\setlength{\oddsidemargin}{0.0in}  % 0.0in
+\setlength{\topmargin}{-1.0in}  % 0.0in
+\setlength{\headheight}{0.0in}  % 0.0in
+\pgfplotsset{compat=1.5.1}
+
+\begin{document}
+\handout{}{Date: November 11, 2013}{Quiz 3: \textbf{12 points}}
+\begin{enumerate}
+  \item Suppose that the 8-PSK constellation shown below is used over a complex AWGN channel with PSD $N_0$.
+    Assume that all the eight signals are equally likely to be transmitted.
+  \begin{figure}[h]
+    \centering
+      \begin{tikzpicture}[scale=1.0,transform shape]
+        \begin{axis}[
+                     axis equal,
+                     xmax=1.7,
+                     xmin=-1.7,
+                     ymax=1.7,
+                     ymin=-1.7,
+                     axis lines = middle,
+                     ytick={1.65},
+                     yticklabels = {$$},
+                     xtick={1.7},
+                     xticklabels = {$$},
+                     xticklabel shift = -20pt,
+                     nodes near coords,
+                    ]
+          \addplot+[only marks, 
+                    mark options={draw=black,fill=black},
+                    point meta=explicit symbolic
+                    ] 
+                    coordinates {
+                      (1.414,0)[$s_1$]
+                      (1,1)[$s_2$]
+                      (0,1.414)[$s_3$]
+                      (-1,1)[$s_4$]
+                      (-1.414,0)[$s_5$]
+                      (-1,-1)[$s_6$]
+                      (0,-1.414)[$s_7$]
+                      (1,-1)[$s_8$]
+                    };
+          \draw[->] (axis cs:0,0) -- (axis cs:0.96,0.96) node [midway, sloped, above] {$R$};
+        \end{axis}
+      \end{tikzpicture}
+  \end{figure}
+    \begin{enumerate}
+      \item Express $E_b$ as a function of $R$.
+      \item Derive the power efficiency of this modulation scheme. \textit{Hint:} $\sin \frac{\pi}{8} \approx \frac{3}{8}$.
+      \item Calculate \textbf{any two} of the following three quantities as a function of $E_b$ and $N_0$.
+        \begin{enumerate}
+          \item The exact symbol error probability of the ML receiver.
+          \item The intelligent union bound on the symbol error probability of the ML receiver.
+          \item The nearest neighbor approximation to the symbol error probability of the ML receiver.
+        \end{enumerate}
+    \end{enumerate}
+  \item Suppose observations $Y_i$, $i=1,2,\ldots,N$ are Poisson distributed with parameter $\lambda$. Assume that the $Y_i$'s are independent.
+    \begin{enumerate}
+      \item Derive the ML estimator for $\lambda$.
+      \item Find the mean and variance of the ML estimate.
+    \end{enumerate}
+  Recall that a Poisson distributed random variable with parameter $\lambda$ has a probability mass function given by
+    \begin{equation*}
+      \Pr(Y = n) = \frac{e^{-\lambda}\lambda^n}{n!}, n = 0,1,2,\ldots
+    \end{equation*}
+  with mean and variance both equal to $\lambda$.
+  \item The following set of four signals is used to send two bits over a baseband AWGN channel with PSD $\frac{N_0}{2}$. 
+    \begin{equation*}
+      s_1(t) = -2A p(t), s_2(t) = -A p(t), s_3(t) = A p(t), s_4(t) = 2A p(t)
+    \end{equation*}
+    where $p(t) = I_{[0,1]}(t)$ and 
+    Assume that all the four signals are equally likely to be transmitted.
+    \begin{enumerate}
+      \item Derive the power efficiency of this modulation scheme.
+      \item Specify a Gray code for mapping each symbol to 2 bits.
+      \item Calculate the bit error probability of the ML receiver in terms of $E_b$ and $N_0$ assuming the Gray code in part (b).
+    \end{enumerate}
+\end{enumerate}
+\end{document}

@@ -1,0 +1,259 @@
+\documentclass[t]{beamer}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\usetikzlibrary{calendar}
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\wt}{\operatornamewithlimits{wt}}
+\newcommand{\cov}{\operatornamewithlimits{cov}}
+\newcommand{\var}{\operatornamewithlimits{var}}
+\renewcommand\Re{\operatorname{Re}}
+\renewcommand\Im{\operatorname{Im}}
+
+\mode<presentation>
+{
+  \usetheme{Singapore}
+  %\useoutertheme{infolines} % Showing only current section in navigation
+  \setbeamertemplate{headline}{}  % Empty headline
+  \setbeamertemplate{footline}[frame number]  % Getting rid of footer items except slide number
+  \setbeamercovered{invisible}
+  \beamertemplatenavigationsymbolsempty % Getting rid of navigation bullets at the bottom
+}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+
+\title[EE 703]{Circularly Symmetric Gaussian Random Vectors}
+\author[Saravanan V]
+{
+  Saravanan Vijayakumaran\\
+  \href{mailto:sarva@ee.iitb.ac.in}{sarva@ee.iitb.ac.in}
+}
+\institute[IIT Bombay]
+{
+  Department of Electrical Engineering\\
+  Indian Institute of Technology Bombay
+}
+\date{October 1, 2013}
+
+\AtBeginSection[]%
+{%
+\begin{frame}[plain]%
+  \topskip0pt
+  \vspace*{\fill}
+    \begin{center}%
+      \usebeamerfont{section title}\insertsection%
+    \end{center}%
+  \vspace*{\fill}
+\end{frame}%
+}
+
+\begin{document}
+
+%% Frame %%
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+%% Frame %%
+\begin{frame}{Circularly Symmetric Gaussian Random Vectors}
+  \footnotesize
+  \begin{definition}[Complex Gaussian Random Variable]
+    If $X$ and $Y$ are jointly Gaussian random variables, $Z = X+jY$ is a complex Gaussian random variable.
+  \end{definition}
+  \pause
+  \begin{definition}[Complex Gaussian Random Vector]
+    If $\mathbf{X}$ and $\mathbf{Y}$ are jointly Gaussian random vectors, $\mathbf{Z} = \mathbf{X}+j\mathbf{Y}$ is a complex Gaussian random vector.
+  \end{definition}
+  \pause
+  \begin{definition}[Circularly Symmetric Gaussian RV]
+    A complex Gaussian random vector $\mathbf{Z}$ is circularly symmetric if $e^{\ j\phi}\mathbf{Z}$ has the same distribution as $\mathbf{Z}$ for all real $\phi$.
+  \end{definition}
+  \pause
+  If $\mathbf{Z}$ is circularly symmetric, then 
+  \begin{itemize}
+    \item \pause $E[\mathbf{Z}] = E[e^{\ j\phi}\mathbf{Z}] \pause = e^{\ j\phi}E[\mathbf{Z}] \implies \pause E[\mathbf{Z}] = 0$.
+    \item \pause $\cov(e^{\ j\phi}\mathbf{Z}) = E[e^{\ j\phi}\mathbf{Z}e^{-j\phi}\mathbf{Z}^H] = \pause \cov(\mathbf{Z})$.
+    \pause \onslide<10->{(See footnote\let\thefootnote\relax\footnote{\onslide<10->{$\cov(e^{\ j\phi}\mathbf{Z}) = \cov(\mathbf{Z})$ holds for any zero mean $\mathbf{Z}$ (even non-circulary symmetric $\mathbf{Z}$)}})}
+    \item \pause Define pseudocovariance of $\mathbf{Z}$ as $E[\mathbf{Z}\mathbf{Z}^T]$. \pause
+      \begin{equation*}
+        E[\mathbf{Z}\mathbf{Z}^T] = E[e^{\ j\phi}\mathbf{Z}e^{\ j\phi}\mathbf{Z}^T] \pause = e^{2j\phi}E[\mathbf{Z}\mathbf{Z}^T] \implies \pause E[\mathbf{Z}\mathbf{Z}^T] = \mathbf{0}
+      \end{equation*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Circular Symmetry for Random Variables}
+  \footnotesize
+  \begin{itemize}
+    \item \pause Consider a circularly symmetric complex Gaussian RV $Z = X+jY$
+    \item \pause $E[Z] = 0 \pause \implies E[X] = 0$ \pause and $E[Y] = 0$
+    \item \pause Pseudocovariance zero $\implies$ \pause $E[ZZ^T] = E[Z^2] = 0$ \pause $\implies$ \pause $\var(X) = \var(Y)$, \pause $\cov(X,Y) = 0$
+    \item \pause If $Z$ is a circularly symmetric complex Gaussian random variable, its real and imaginary parts are \pause independent and \pause have equal variance
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Complex Gaussian Random Vector PDF}
+  \footnotesize
+  \begin{itemize}
+    \item \pause The pdf of a complex random vector $\mathbf{Z}$ is the joint pdf of its real and imaginary parts i.e. the pdf of
+      \begin{equation*}
+        \tilde{\mathbf{Z}} = \begin{bmatrix} \mathbf{X} \\ \mathbf{Y} \end{bmatrix}
+      \end{equation*}
+    \item \pause For a complex Gaussian random vector, the pdf is given by
+      \begin{equation*}
+      p(\mathbf{z}) = p(\tilde{\mathbf{z}}) = \frac{1}{(2\pi)^n(\det(\mathbf{C}_{\tilde{\mathbf{Z}}}))^{\frac{1}{2}}} \exp\left(-\frac{1}{2} (\tilde{\mathbf{z}}-\tilde{\mathbf{m}})^T\mathbf{C}_{\tilde{\mathbf{Z}}}^{-1}(\tilde{\mathbf{z}}-\tilde{\mathbf{m}})\right)
+      \end{equation*}
+     \pause where $\tilde{\mathbf{m}} = E[\tilde{\mathbf{Z}}]$ \pause and
+      \begin{equation*}
+        \mathbf{C}_{\tilde{\mathbf{Z}}} = \begin{bmatrix} \mathbf{C}_\mathbf{X} & \mathbf{C}_{\mathbf{XY}} \\ \mathbf{C}_{\mathbf{YX}} & \mathbf{C}_\mathbf{Y} \end{bmatrix}
+      \end{equation*}
+      \pause
+      \begin{eqnarray*}
+        \mathbf{C_X} & = & E \left[ (\mathbf{X} - E[\mathbf{X}])(\mathbf{X} - E[\mathbf{X}])^T \right] \\ \pause
+        \mathbf{C_Y} & = & E \left[ (\mathbf{Y} - E[\mathbf{Y}])(\mathbf{Y} - E[\mathbf{Y}])^T \right] \\ \pause
+        \mathbf{C_{XY}} & = & E \left[ (\mathbf{X} - E[\mathbf{X}])(\mathbf{Y} - E[\mathbf{Y}])^T \right] \\ \pause
+        \mathbf{C_{YX}} & = & E \left[ (\mathbf{Y} - E[\mathbf{Y}])(\mathbf{X} - E[\mathbf{X}])^T \right] 
+      \end{eqnarray*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Circularly Symmetry and Pseudocovariance}
+  \footnotesize
+  \begin{itemize}
+    \item \pause Covariance of $\mathbf{Z}=\mathbf{X}+j\mathbf{Y}$
+      \begin{eqnarray*}
+        \mathbf{C_Z} = E \left[ (\mathbf{Z} - E[\mathbf{Z}])(\mathbf{Z} - E[\mathbf{Z}])^H \right] \pause = \pause \mathbf{C_X} + \mathbf{C_Y} + j\left(\mathbf{C_{YX}} - \mathbf{C_{XY}}\right)
+      \end{eqnarray*}
+    \item \pause Pseudocovariance of $\mathbf{Z}=\mathbf{X}+j\mathbf{Y}$ is
+      \begin{eqnarray*}
+        E \left[ (\mathbf{Z} - E[\mathbf{Z}])(\mathbf{Z} - E[\mathbf{Z}])^T \right] \pause = \pause  \mathbf{C_X} - \mathbf{C_Y} + j\left(\mathbf{C_{XY}} + \mathbf{C_{YX}}\right)
+      \end{eqnarray*}
+    \item \pause Pseudocovariance is zero \pause $\implies$
+      \begin{itemize}
+        \footnotesize
+        \item \pause $\mathbf{C_X} =  \mathbf{C_Y}, \pause \mathbf{C_{XY}} = -\mathbf{C_{YX}}$
+        \item \pause $\mathbf{C_Z} = \pause 2\mathbf{C_X} + 2j\mathbf{C_{YX}}$
+      \end{itemize}
+    \item \pause The covariance of $\tilde{\mathbf{Z}} = \begin{bmatrix} \mathbf{X} & \mathbf{Y}\end{bmatrix}^T$ for zero pseudocovariance is
+      \begin{equation*}
+        \mathbf{C}_{\tilde{\mathbf{Z}}} = \begin{bmatrix} \mathbf{C}_\mathbf{X} & \mathbf{C}_{\mathbf{XY}} \\ \mathbf{C}_{\mathbf{YX}} & \mathbf{C}_\mathbf{Y} \end{bmatrix} = \pause \begin{bmatrix} \mathbf{C}_\mathbf{X} & -\mathbf{C}_{\mathbf{YX}} \\ \mathbf{C}_{\mathbf{YX}} & \mathbf{C}_\mathbf{X} \end{bmatrix} = \pause \begin{bmatrix} \frac{1}{2}\Re(\mathbf{C_Z}) & -\frac{1}{2}\Im(\mathbf{C_Z}) \\ \frac{1}{2}\Im(\mathbf{C_Z}) & \frac{1}{2}\Re(\mathbf{C_Z}) \end{bmatrix}
+      \end{equation*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Circularly Symmetry and Pseudocovariance}
+  \footnotesize
+  \begin{theorem}
+    \pause A complex Gaussian vector is circularly symmetric if and only if its mean and pseudocovariance are zero. \pause
+  \end{theorem}
+  \begin{proof} \renewcommand{\qedsymbol}{}
+    \begin{itemize}
+      \item \pause The forward direction was shown in the first slide.
+      \item \pause For reverse direction, assume $\mathbf{Z}$ is a complex Gaussian vector with zero mean and zero pseudocovariance.
+      \item \pause The pdf of $\mathbf{Z}$ is the the pdf of $\tilde{\mathbf{Z}} = \begin{bmatrix} \mathbf{X} & \mathbf{Y} \end{bmatrix}^T$
+        \begin{equation*}
+          p(\mathbf{z}) = p(\tilde{\mathbf{z}}) = \frac{1}{(2\pi)^n(\det(\mathbf{C}_{\tilde{\mathbf{Z}}}))^{\frac{1}{2}}} \exp\left(-\frac{1}{2} \tilde{\mathbf{z}}^T\mathbf{C}_{\tilde{\mathbf{Z}}}^{-1}\tilde{\mathbf{z}}\right)
+        \end{equation*}
+        \pause where
+      \begin{equation*}
+        \mathbf{C}_{\tilde{\mathbf{Z}}} = \begin{bmatrix} \frac{1}{2}\Re(\mathbf{C_Z}) & -\frac{1}{2}\Im(\mathbf{C_Z}) \\ \frac{1}{2}\Im(\mathbf{C_Z}) & \frac{1}{2}\Re(\mathbf{C_Z}) \end{bmatrix}
+      \end{equation*}
+      \item \pause We want to show that $e^{\ j\phi}\mathbf{Z}$ has the same pdf as $\mathbf{Z}$
+    \end{itemize}
+  \end{proof}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Circularly Symmetry and Pseudocovariance}
+  \footnotesize
+  \begin{proof}[Proof Continued]
+    \begin{itemize}
+      \item \pause $e^{\ j\phi}\mathbf{Z}$ has zero mean \pause and zero pseudocovariance
+      \item \pause $\cov(e^{\ j\phi}\mathbf{Z}) = \cov(\mathbf{Z})$
+      \item \pause If $\mathbf{Z}$ is a complex Gaussian vector, $e^{\ j\phi}\mathbf{Z}$ is a complex Gaussian vector \pause (\alert{Assignment 4})
+      \item \pause Let $\mathbf{U} = e^{\ j\phi}\mathbf{Z}$ \pause and $\tilde{\mathbf{U}} = \begin{bmatrix} \Re(\mathbf{U}) & \Im(\mathbf{U}) \end{bmatrix}^T$
+      \item \pause The pdf of $\mathbf{U}$ is the the pdf of $\tilde{\mathbf{U}}$
+        \begin{equation*}
+          p(\mathbf{u}) = p(\tilde{\mathbf{u}}) = \frac{1}{(2\pi)^n(\det(\mathbf{C}_{\tilde{\mathbf{U}}}))^{\frac{1}{2}}} \exp\left(-\frac{1}{2} \tilde{\mathbf{u}}^T\mathbf{C}_{\tilde{\mathbf{U}}}^{-1}\tilde{\mathbf{u}}\right)
+        \end{equation*}
+        \pause where
+      \begin{equation*}
+        \mathbf{C}_{\tilde{\mathbf{U}}} = \begin{bmatrix} \frac{1}{2}\Re(\mathbf{C_U}) & -\frac{1}{2}\Im(\mathbf{C_U}) \\ \frac{1}{2}\Im(\mathbf{C_U}) & \frac{1}{2}\Re(\mathbf{C_U}) \end{bmatrix} \pause = \begin{bmatrix} \frac{1}{2}\Re(\mathbf{C_Z}) & -\frac{1}{2}\Im(\mathbf{C_Z}) \\ \frac{1}{2}\Im(\mathbf{C_Z}) & \frac{1}{2}\Re(\mathbf{C_Z}) \end{bmatrix}
+      \end{equation*}
+      \item \pause $\mathbf{U}$ has the same pdf as $\mathbf{Z}$
+    \end{itemize}
+  \end{proof}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{PDF of Circularly Symmetric Gaussian Vectors}
+  \footnotesize
+  \begin{itemize}
+    \item \pause The pdf of a complex Gaussian vector $\mathbf{Z}=\mathbf{X}+j\mathbf{Y}$ is the pdf of $\tilde{\mathbf{Z}} = \begin{bmatrix} \mathbf{X} & \mathbf{Y} \end{bmatrix}^T$
+      \begin{equation*}
+      p(\mathbf{z}) = p(\tilde{\mathbf{z}}) = \frac{1}{(2\pi)^n(\det(\mathbf{C}_{\tilde{\mathbf{Z}}}))^{\frac{1}{2}}} \exp\left(-\frac{1}{2} (\tilde{\mathbf{z}}-\tilde{\mathbf{m}})^T\mathbf{C}_{\tilde{\mathbf{Z}}}^{-1}(\tilde{\mathbf{z}}-\tilde{\mathbf{m}})\right)
+      \end{equation*}
+
+    \item \pause If $\mathbf{Z}$ is circularly symmetric, the pdf is given by
+      \begin{equation*}
+      p(\mathbf{z}) = \frac{1}{\pi^n\det(\mathbf{C}_{\mathbf{Z}})} \exp\left(-\mathbf{z}^H\mathbf{C}_{\mathbf{Z}}^{-1}\mathbf{z}\right)
+      \end{equation*}
+      \pause We write $\mathbf{Z} \sim \mathcal{CN}(\mathbf{0}, \mathbf{C_Z})$
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Projection of Complex WGN is Circularly Symmetric}
+  \footnotesize
+  \begin{itemize}
+    \item \pause Let $\psi_1(t), \psi_2(t),\ldots,\psi_K(t)$ be a complex orthonormal basis
+    \item \pause Let $n(t)$ be complex white Gaussian noise with PSD $2\sigma^2$
+    \item \pause Consider the projection of $n(t)$ onto the orthonormal basis
+      \begin{equation*}
+        \mathbf{N} = \begin{bmatrix} \langle n, \psi_1 \rangle \\ \vdots \\ \langle n, \psi_K \rangle \end{bmatrix}
+      \end{equation*}
+    \item \pause $\mathbf{N}$ is circularly symmetric \pause and its pdf is
+      \begin{equation*}
+        p(\mathbf{n}) = \frac{1}{\pi^K\det(\mathbf{C}_{\mathbf{N}})} \exp\left(-\mathbf{n}^H\mathbf{C}_{\mathbf{N}}^{-1}\mathbf{n}\right) \pause = \frac{1}{(2\pi\sigma^2)^K} \exp\left(-\frac{\lVert \mathbf{n} \rVert^2}{2\sigma^2}\right)
+      \end{equation*}
+    \item \pause If $\mathbf{Y} = \mathbf{s}_i + \mathbf{N}$, then the pdf of $\mathbf{Y}$ is
+      \begin{equation*}
+        p(\mathbf{y}) = \frac{1}{(2\pi\sigma^2)^K} \exp\left(-\frac{\lVert \mathbf{y}-\mathbf{s}_i \rVert^2}{2\sigma^2}\right)
+      \end{equation*}
+  \end{itemize}
+  \normalsize
+\end{frame}
+
+%% Frame %%
+\begin{frame}{Reference}
+    Circularly Symmetric Gaussian Random Vectors
+    
+    Robert G. Gallager
+    
+    \url{http://www.rle.mit.edu/rgallager/documents/CircSymGauss.pdf}
+\end{frame}
+
+%% Frame %%
+\begin{frame}{}
+\vfill
+\begin{center}
+Thanks for your attention
+\end{center}
+\vfill
+\end{frame}
+\end{document}
