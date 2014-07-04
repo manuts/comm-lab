@@ -42,14 +42,15 @@
 }
 \usepackage{caption}
 \usepackage{url}
-
+% for appendix
+\usepackage[toc,page]{appendix}
 \begin{document}
 
 \tableofcontents
 
-\chapter{Introduction}
+\chapter{GNU Radio}
 
-\section{GNU Radio}
+\section{Introdution}
 GNU Radio\cite{bib:gnuradio} is a free \& open-source software development toolkit
 that provides signal processing blocks to implement software radios.
 It can be used with readily-available low-cost external RF hardware
@@ -88,31 +89,21 @@ GNU Radio supports several radio front-ends, either natively or through addition
 We will be using Ettus Research USRP platform and RTL-SDR TV tuners.
 
 \section{First flow-graph}
-Lets make our first flow-graph. Our aim is to generate a sinusoid and play it on audio output.
-Open GNU Radio companion by executing gnuradio-companion on a terminal. 
-It opens a window similar to the one given in Figure \ref{fig:grc}.
-When we open a new flow graph, a default graph as shown in Figure \ref{fig:newgraph} comes up.
-The completed flow-graph is shown in Figure \ref{fig:audio-play1}.
-When we execute this flow-graph, it is a python program that is getting executed.
+Flow graphs are graphs (as in graph theory) through which data flows.
+Many GNU Radio applications contain nothing other than a flow graph.
+The nodes of such a graph are called blocks, and the data flows along the edges.
 
+Any actual signal processing is done in the blocks.
+Ideally, every block does exactly one job - this way GNU Radio stays modular and flexible.
+Blocks are usually written in C++ (might also be Python); writing new blocks is not very difficult.
+
+In order to illuminate this diffuse topic a little, let's start with an example.
+Our aim is to generate a sinusoid and play it on audio output.
+Open GNU Radio companion by executing gnuradio-companion on a terminal. 
+The completed flow-graph is shown in Figure \ref{fig:audio-play1}.
 \begin{figure}
 \centering
- \includegraphics[scale=0.23]{figures/grc.png}
- \caption{GNU Radio companion. The area containing the blocks in the center is the place where we assemble the flow-graphs.
- We can drag and drop different signal processing blocks to the flow-graph from the list-box on the right.
- The text-box on the bottom displays the output written to the terminal.\label{fig:grc}}
-\end{figure}
-\begin{figure}
-\centering
- \includegraphics[scale=0.4]{figures/gnuradio-new-flowgraph.png}
- \caption{Constructing a flow graph. On the left top we see the options block. The variable block defines a variable called samp\_rate.
- We can change the value associated with this variable by double clicking on it and editing the property window that pops up.
- One can use this variable in other block by putting the variable id i.e, samp\_rate.
- \label{fig:newgraph}}
-\end{figure}
-\begin{figure}
-\centering
- \includegraphics[scale=0.80]{figures/audio-play1.png}
+ \includegraphics[scale=0.40]{figures/audio-play1.png}
  \caption{Playing 500Hz sinusoid on audio output.
  Take signal source and audio sink block from the list of blocks.
  Set the data type of signal source to float.
@@ -120,6 +111,80 @@ When we execute this flow-graph, it is a python program that is getting executed
  Set the sampling rate in the audio sink block to 32k.
  Connect these blocks and execute the flow-graph.\label{fig:audio-play1}}
 \end{figure}
+
+The blocks are connected at ports. 
+The first block has no input port, it produces samples. 
+Such a block, with only output ports, is called a source. 
+In an analog fashion, the final block, with no outputs, is called a sink.
+
+So what's happening here?
+The signal source produces samples of 500Hz cosine sampled at 32kHz per second.
+The first 64 samples (which corresponds to a complete cycle of cosine in this case)
+is plotted in Figure \ref{fig:signal-source-out}.
+These samples are connected to the multiply constant block,
+which multiplies each of the input with 0.5.
+Finally, the samples are passed to the audio output block which plays the incoming samples using computers audio card.
+\begin{figure}
+ \centering
+ \includegraphics[scale=0.4]{figures/signal-source-out}
+ \caption{The first 64 samples of output from the signal source. \label{fig:signal-source-out}}
+\end{figure}
+
+In general, we call whatever a block outputs an item. 
+In Figure \ref{fig:audio-play1}, one item was a float value representing one sample produced by the signal source. 
+However, an item can be anything that can be represented digitally. 
+The most common types of samples are real samples (as before), complex samples (the most common type in software defined radio), integer types, and vectors of these scalar types.
+
+In Figure \ref{fig:audio-play1}, apart from playing the samples on audio card, everything else is done in software.
+Since the audio card can only take specific sampling rates(32kHz, 44.1kHz, etc)
+the rate at which the samples are processed through this flow graph will be equal to the sampling rate of the audio card.
+
+Let us consider another example of computing the FFT of a signal source.
+The flow graph is given in Figure \ref{fig:compute-fft}.
+In this example, the second block (stream to vector) produces one item(which is a vector of 1024 complex number) for every 1024 input items.
+So, the rate at which it produces items is 1024 times smaller then the rate at which it consumes items 
+(the fact that it actually produces bytes at the same rate it consumes them is irrelevant here).
+Such a block is called a decimator, well, because it decimates the item rate. 
+A block which outputs more items than it receives is called an interpolator. 
+If it produces and consumes at the same rate, it's a sync block.
+\begin{figure}
+ \centering
+ \includegraphics[scale=0.4]{figures/fft.png}
+ \caption{Computing FFT \label{fig:compute-fft}}
+\end{figure}
+
+Let us ask the question what is the base sampling rate in Figure \ref{fig:compute-fft}?
+Or how many complex numbers produced by the signal source, will be processed through this flow graph in a second?
+Well, we can't really answer this question.
+In this flow graph all that we are do, is to generate some numbers, do some math on the generated numbers, and save the output to a file.
+As long as there is no hardware clock present which fixes the rate, 
+sampling rate is meaningless--only relative rates (i.e. input to output rates are important. 
+The computer may handle the samples as fast as it wants.
+Note that this can cause the computer to lock up by allocating 100\% of CPU cycles to your signal processing.
+
+In order to avoid the computer getting busy doing all the math, it is recommended to use a throttle block
+when we run GNU Radio without any other hardware. The throttle block is tied to computers hardware clock,
+and it throttles the number of items passing through it.
+
+Also when we have hardware involving different sampling rates, we might have to use some up-sampling/down-sampling
+so that we meet the sampling rate requirement of all the hardwares.
+
+% \begin{figure}
+% \centering
+%  \includegraphics[scale=0.23]{figures/grc.png}
+%  \caption{GNU Radio companion. The area containing the blocks in the center is the place where we assemble the flow-graphs.
+%  We can drag and drop different signal processing blocks to the flow-graph from the list-box on the right.
+%  The text-box on the bottom displays the output written to the terminal.\label{fig:grc}}
+% \end{figure}
+% \begin{figure}
+% \centering
+%  \includegraphics[scale=0.4]{figures/gnuradio-new-flowgraph.png}
+%  \caption{Constructing a flow graph. On the left top we see the options block. The variable block defines a variable called samp\_rate.
+%  We can change the value associated with this variable by double clicking on it and editing the property window that pops up.
+%  One can use this variable in other block by putting the variable id i.e, samp\_rate.
+%  \label{fig:newgraph}}
+% \end{figure}
+
 
 \begin{appendices}
 \lstinputlisting[language=Python, caption=The python program corresponding to the flow-graph in Figure \ref{fig:audio-play1}]

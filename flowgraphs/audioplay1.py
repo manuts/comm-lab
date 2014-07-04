@@ -2,11 +2,12 @@
 ##################################################
 # Gnuradio Python Flow Graph
 # Title: Audioplay1
-# Generated: Wed Jun 25 12:46:12 2014
+# Generated: Sat Jun 28 18:50:14 2014
 ##################################################
 
 from gnuradio import analog
 from gnuradio import audio
+from gnuradio import blocks
 from gnuradio import eng_notation
 from gnuradio import gr
 from gnuradio.eng_option import eng_option
@@ -30,16 +31,17 @@ class audioplay1(grc_wxgui.top_block_gui):
         ##################################################
         # Blocks
         ##################################################
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vff((0.5, ))
         self.audio_sink_0 = audio.sink(samp_rate, "", True)
         self.analog_sig_source_x_0 = analog.sig_source_f(samp_rate, analog.GR_COS_WAVE, 500, 0.2, 0)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_sig_source_x_0, 0), (self.audio_sink_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0, 0))
+        self.connect((self.analog_sig_source_x_0, 0), (self.blocks_multiply_const_vxx_0, 0))
 
 
-# QT sink close method reimplementation
 
     def get_samp_rate(self):
         return self.samp_rate
@@ -62,4 +64,3 @@ if __name__ == '__main__':
     tb = audioplay1()
     tb.Start(True)
     tb.Wait()
-
