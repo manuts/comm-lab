@@ -1,4 +1,4 @@
-\documentclass[a4paper,10pt]{report}
+\documentclass[a4paper,10pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{lipsum}
 % For maths
@@ -46,11 +46,11 @@
 \usepackage[toc,page]{appendix}
 \begin{document}
 
-\tableofcontents
+%\tableofcontents
 
-\chapter{GNU Radio}
+%\chapter{GNU Radio}
 
-\section{Introdution}
+\section{GNU Radio}
 GNU Radio\cite{bib:gnuradio} is a free \& open-source software development toolkit
 that provides signal processing blocks to implement software radios.
 It can be used with readily-available low-cost external RF hardware
@@ -88,7 +88,7 @@ GNU Radio Companion(GRC) is a Simulink-like graphical tool to design signal proc
 GNU Radio supports several radio front-ends, either natively or through additional out-of-tree modules.
 We will be using Ettus Research USRP platform and RTL-SDR TV tuners.
 
-\section{First flow-graph}
+\subsection{First flow-graph}
 Flow graphs are graphs (as in graph theory) through which data flows.
 Many GNU Radio applications contain nothing other than a flow graph.
 The nodes of such a graph are called blocks, and the data flows along the edges.
@@ -121,7 +121,7 @@ So what's happening here?
 The signal source produces samples of 500Hz cosine sampled at 32kHz per second.
 The first 64 samples (which corresponds to a complete cycle of cosine in this case)
 is plotted in Figure \ref{fig:signal-source-out}.
-These samples are connected to the multiply constant block,
+These samples are consumed by the multiply constant block,
 which multiplies each of the input with 0.5.
 Finally, the samples are passed to the audio output block which plays the incoming samples using computers audio card.
 \begin{figure}
@@ -138,6 +138,12 @@ The most common types of samples are real samples (as before), complex samples (
 In Figure \ref{fig:audio-play1}, apart from playing the samples on audio card, everything else is done in software.
 Since the audio card can only take specific sampling rates(32kHz, 44.1kHz, etc)
 the rate at which the samples are processed through this flow graph will be equal to the sampling rate of the audio card.
+
+As mentioned before GNU Radio applications are written in python programming language. When we run any flow-graph
+in GNU Radio companion, it is a python program that runs behind the scene. The python program corresponding to 
+the flow-graph in Figure \ref{fig:audio-play1} is given in Listing \ref{lst:audio-play1}.
+\lstinputlisting[language=Python, caption=The python program corresponding to the flow-graph in Figure \ref{fig:audio-play1}
+\label{lst:audio-play1}]{flowgraphs/audioplay1.py}\\
 
 Let us consider another example of computing the FFT of a signal source.
 The flow graph is given in Figure \ref{fig:compute-fft}.
@@ -168,6 +174,14 @@ and it throttles the number of items passing through it.
 
 Also when we have hardware involving different sampling rates, we might have to use some up-sampling/down-sampling
 so that we meet the sampling rate requirement of all the hardwares.
+
+\section{IQ Modulation\cite{bib:madhov}}
+We often employ passband channels, which means that we must be able to
+transmit and receive passband signals. We now show that all the informa-
+tion carried in a real-valued passband signal is contained in a corresponding
+complex-valued baseband signal. This baseband signal is called the complex
+baseband representation, or complex envelope, of the passband signal
+
 
 % \begin{figure}
 % \centering
@@ -221,6 +235,9 @@ so that we meet the sampling rate requirement of all the hardwares.
  \url{http://www.linear.com/product/LTC5598} 
  \bibitem{bib:pllchip}
  \url{http://www.linear.com/product/LTC6946} 
+ 
+ \bibitem{bib:madhov} Upamanyu Madhov, ``Fundamentals of Digital Communication'', CUP 2008.
+ 
  
  \end{thebibliography}
 
