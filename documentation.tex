@@ -340,19 +340,50 @@ Figure \ref{fig:downconversion} shows the process of IQ demodulation.
       \label{fig:downconversion}}
   \end{figure}
 
-\section{IQ Modulator}
+\section{IQ Modulator Board}
 We have developed an IQ modulator board at Wadhwani Electronics Labs.
-This IQ modulator board features Linear Technology's LTC-5598 modulator LTC-6946-1 synthesizer and PIC18F4550 microcontroller.
+This IQ modulator board features Linear Technology's LTC5598 modulator LTC6946-1 synthesizer and PIC18F4550 microcontroller.
+The block diagram of this board is given in Figure \ref{fig:board-block-diagram}.
 \begin{figure}
 \centering
 \begin{tikzpicture}[auto, thick, node distance=2cm, >=triangle 45, every text node part/.style={align=center}]
 \draw
-  node at (0,0)[draw, thick, rectangle]{\large MICRO \\ CONTROLLER}
-  node at (5,0)[draw, thick, rectangle]{\large SYNTHESIZER}
-  node at (5,-2)[]{\large REFERENCE \\ INPUT}
-  node at (10,0)[draw, thick, rectangle]{\large IQ \\ MODULATOR};
+  node at (0, 2)(jtag) {\large ICSP}
+  node at (0,0)[draw, thick, rectangle](uc){\large MICRO \\ CONTROLLER \\ \normalsize PIC18F4550 }
+  node at (0, -2)(usb) {\large USB}
+  node at (4,0)[draw, thick, rectangle](pll){\large SYNTHESIZER \\ \normalsize LTC6946-1}
+  node at (4,-2)(refin){\large 10MHz \\ REFERENCE \\ INPUT}
+  node at (9.5,2) (sit){\large $s_{\text{i}}(t)$}
+  node at (9.5,-2) (sqt){\large $s_{\text{q}}(t)$}
+  node at (12,0)(rf){\large $s_{\text{p}}(t)$}
+  node at (9.5,0)[draw, thick, rectangle](mod){\large IQ \\ MODULATOR \\ \normalsize LTC5598};
+  \draw[->,very thick] (jtag) -- (uc);
+  \draw[->,very thick] (usb) -- (uc);
+  \draw[->,very thick] (uc) -- (pll);
+  \draw[->,very thick] (pll) -- node[above] {\large $\cos(2\pi f_ct)$} (mod);
+  \draw[->,very thick] (refin) -- (pll);
+  \draw[->,very thick] (sit) -- (mod);
+  \draw[->,very thick] (sqt) -- (mod);
+  \draw[->,very thick] (mod) -- (rf);
 \end{tikzpicture}
+\caption{Block diagram of IQ modulator board \label{fig:board-block-diagram}}
 \end{figure}
+
+LTC 5598\cite{bib:modchip}
+is a high linearity direct quadraturemodulator, which works in the range from 5MHz to 1600MHz. 
+It allows direct modulation of an RF signal using differential I and Q signals.
+The I/Q baseband inputs consist of voltage-to-current converters that in turn drive double-balanced mixers.
+The outputs of these mixers are summed and applied to a buffer,
+which converts the differential mixer signals to a $50\Omega$ single-ended buffered RF output.
+The internal block digram of LTC5598 is given in Figure \ref{fig:mod-block}.
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{figures/ltc5598-block-diagram.jpg}
+\caption{Internal block digram of LTC5598 chip. \label{fig:mod-block}}
+\end{figure}
+
+
+
 %  \includegraphics[scale=0.23]{figures/grc.png}
 %  \caption{GNU Radio companion. The area containing the blocks in the center is the place where we assemble the flow-graphs.
 %  We can drag and drop different signal processing blocks to the flow-graph from the list-box on the right.
@@ -367,7 +398,7 @@ This IQ modulator board features Linear Technology's LTC-5598 modulator LTC-6946
 %  \label{fig:newgraph}}
 % \end{figure}
 
-
+\newpage
 \begin{appendices}
 \lstinputlisting[language=Python, caption=The python program corresponding to the flow-graph in Figure \ref{fig:audio-play1}, label=lst:audio-play1]
 {flowgraphs/audioplay1.py}

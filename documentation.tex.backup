@@ -1,6 +1,13 @@
-\documentclass[a4paper,10pt]{report}
+\documentclass[a4paper,10pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{lipsum}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+\usetikzlibrary{decorations.markings}
+\usepackage{caption}
+\usepackage{subcaption}
 % For maths
 \usepackage{amsmath}
 % Set Margin
@@ -46,11 +53,13 @@
 \usepackage[toc,page]{appendix}
 \begin{document}
 
-\tableofcontents
+\pgfplotsset{compat=1.3}
 
-\chapter{GNU Radio}
+%\tableofcontents
 
-\section{Introdution}
+%\chapter{GNU Radio}
+
+\section{GNU Radio}
 GNU Radio\cite{bib:gnuradio} is a free \& open-source software development toolkit
 that provides signal processing blocks to implement software radios.
 It can be used with readily-available low-cost external RF hardware
@@ -88,7 +97,7 @@ GNU Radio Companion(GRC) is a Simulink-like graphical tool to design signal proc
 GNU Radio supports several radio front-ends, either natively or through additional out-of-tree modules.
 We will be using Ettus Research USRP platform and RTL-SDR TV tuners.
 
-\section{First flow-graph}
+\subsection{First flow-graph}
 Flow graphs are graphs (as in graph theory) through which data flows.
 Many GNU Radio applications contain nothing other than a flow graph.
 The nodes of such a graph are called blocks, and the data flows along the edges.
@@ -100,9 +109,17 @@ Blocks are usually written in C++ (might also be Python); writing new blocks is 
 In order to illuminate this diffuse topic a little, let's start with an example.
 Our aim is to generate a sinusoid and play it on audio output.
 Open GNU Radio companion by executing gnuradio-companion on a terminal. 
-% It opens a window similar to the one given in Figure \ref{fig:grc}.
-% When we open a new flow graph, a default graph as shown in Figure \ref{fig:newgraph} comes up.
 The completed flow-graph is shown in Figure \ref{fig:audio-play1}.
+\begin{figure}
+\centering
+ \includegraphics[scale=0.40]{figures/audio-play1.png}
+ \caption{Playing 500Hz sinusoid on audio output.
+ Take signal source and audio sink block from the list of blocks.
+ Set the data type of signal source to float.
+ Set the frequency to 500Hz and sampling rate to 32k.
+ Set the sampling rate in the audio sink block to 32k.
+ Connect these blocks and execute the flow-graph.\label{fig:audio-play1}}
+\end{figure}
 
 The blocks are connected at ports. 
 The first block has no input port, it produces samples. 
@@ -113,9 +130,14 @@ So what's happening here?
 The signal source produces samples of 500Hz cosine sampled at 32kHz per second.
 The first 64 samples (which corresponds to a complete cycle of cosine in this case)
 is plotted in Figure \ref{fig:signal-source-out}.
-These samples are connected to the multiply constant block,
+These samples are consumed by the multiply constant block,
 which multiplies each of the input with 0.5.
 Finally, the samples are passed to the audio output block which plays the incoming samples using computers audio card.
+\begin{figure}
+ \centering
+ \includegraphics[scale=0.4]{figures/signal-source-out}
+ \caption{The first 64 samples of output from the signal source. \label{fig:signal-source-out}}
+\end{figure}
 
 In general, we call whatever a block outputs an item. 
 In Figure \ref{fig:audio-play1}, one item was a float value representing one sample produced by the signal source. 
@@ -125,6 +147,10 @@ The most common types of samples are real samples (as before), complex samples (
 In Figure \ref{fig:audio-play1}, apart from playing the samples on audio card, everything else is done in software.
 Since the audio card can only take specific sampling rates(32kHz, 44.1kHz, etc)
 the rate at which the samples are processed through this flow graph will be equal to the sampling rate of the audio card.
+As mentioned before GNU Radio applications are written in python programming language. When we run any flow-graph
+in GNU Radio companion, it is a python program that runs behind the scene. The python program corresponding to 
+the flow-graph in Figure \ref{fig:audio-play1} is given in Listing \ref{lst:audio-play1}.
+This program is auto-generated when we run a GNU Radio companion(GRC) flow graph.
 
 Let us consider another example of computing the FFT of a signal source.
 The flow graph is given in Figure \ref{fig:compute-fft}.
@@ -134,9 +160,225 @@ So, the rate at which it produces items is 1024 times smaller then the rate at w
 Such a block is called a decimator, well, because it decimates the item rate. 
 A block which outputs more items than it receives is called an interpolator. 
 If it produces and consumes at the same rate, it's a sync block.
+\begin{figure}
+ \centering
+ \includegraphics[scale=0.4]{figures/fft.png}
+ \caption{Computing FFT \label{fig:compute-fft}}
+\end{figure}
 
-% \begin{figure}
-% \centering
+Let us ask the question what is the base sampling rate in Figure \ref{fig:compute-fft}?
+Or how many complex numbers produced by the signal source, will be processed through this flow graph in a second?
+Well, we can't really answer this question.
+In this flow graph all that we are do, is to generate some numbers, do some math on the generated numbers, and save the output to a file.
+As long as there is no hardware clock present which fixes the rate, 
+sampling rate is meaningless--only relative rates (i.e. input to output rates are important. 
+The computer may handle the samples as fast as it wants.
+Note that this can cause the computer to lock up by allocating 100\% of CPU cycles to your signal processing.
+
+In order to avoid the computer getting busy doing all the math, it is recommended to use a throttle block
+when we run GNU Radio without any other hardware. The throttle block is tied to computer's hardware clock,
+and it throttles the number of items passing through it.
+
+Also when we have hardware involving different sampling rates, we might have to use some up-sampling/down-sampling
+so that we meet the sampling rate requirement of all the hardwares.
+
+\section{IQ Modulation\cite{bib:madhov}}
+In RF communication we transmit our information in a small passband around a high frequency carrier.
+All the information carried in a real-valued passband signal is contained in a corresponding complex-valued baseband signal. 
+This baseband signal is called the complex baseband representation, or complex envelope, of the passband signal.
+Any passband signal $s_{\text{p}}(t)$ can be written as
+\begin{equation}
+ s_{\text{p}}(t) = \sqrt{2}s_{\text{i}}(t)\operatorname{cos}(2\pi f_ct) - \sqrt{2}s_{\text{q}}(t)\operatorname{sin}(2\pi f_ct)
+\end{equation}
+where,
+\begin{equation}
+ s(t) = s_{\text{i}}(t) + \text{j}s_{\text{q}}(t)
+\end{equation}
+is called the complex envelope of $s_{\text{p}}(t)$. In GNU Radio we work with this complex envelope.
+There are many hardwares available which can be interfaced with GNU Radio to transmit the output from a flow-graph
+around any carrier that we may choose. Figure \ref{fig:complex-passband-spectrums} compares the spectrum of 
+complex envelope and passband signals. Figure \ref{fig:upconversion} shows the process of IQ modulation.
+Figure \ref{fig:downconversion} shows the process of IQ demodulation.
+
+  \begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.4\textwidth}
+      \begin{tikzpicture}[scale=0.8,transform shape]
+        \begin{axis}[
+                     title=$\Re(S(f))$,
+                     xmax=7,
+                     xmin=-7,
+                     ymax=1.5,
+                     ymin=-1.1,
+                     %axis lines = middle,
+                     axis x line = middle,
+                     axis y line = middle,
+                     ytick=\empty,
+                     xtick = {7},
+                     xticklabels = {$f$},
+                     %x tick label style={font=\tiny},
+                     x post scale = 3.0
+                    ]
+          \addplot[color=blue,very thick] coordinates {(1,0) (-1,1.414) (-1,0)};
+        \end{axis}
+      \end{tikzpicture}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.4\textwidth}
+      \begin{tikzpicture}[scale=0.8,transform shape]
+        \begin{axis}[
+                     title=$\Im(S(f))$,
+                     xmax=7,
+                     xmin=-7,
+                     ymax=1.5,
+                     ymin=-1.1,
+                     %axis lines = middle,
+                     axis x line = middle,
+                     axis y line = middle,
+                     ytick=\empty,
+                     xtick = {7},
+                     xticklabels = {$f$},
+                     %x tick label style={font=\tiny},
+                     x post scale = 3.0
+                    ]
+          \addplot[color=blue,very thick] coordinates {(1,0) (1,1.414) (-1,1.414) (-1,0)};
+        \end{axis}
+      \end{tikzpicture}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.4\textwidth}
+      \begin{tikzpicture}[scale=0.8,transform shape]
+        \begin{axis}[
+                     title=$\Re(S_{\text{p}}(f))$,
+                     xmax=7,
+                     xmin=-7,
+                     ymax=1.5,
+                     ymin=-1.1,
+                     %axis lines = middle,
+                     axis x line = middle,
+                     axis y line = middle,
+                     ytick=\empty,
+                     xtick = {-5,5,7},
+                     xticklabels = {$-f_c$,$f_c$,$f$},
+                     %x tick label style={font=\tiny},
+                     x post scale = 3.0
+                    ]
+          \addplot[color=blue,very thick] coordinates {(-6,0) (-4,1) (-4,0)};
+          \addplot[color=blue,very thick] coordinates {(6,0) (4,1) (4,0)};
+        \end{axis}
+      \end{tikzpicture}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.4\textwidth}
+      \begin{tikzpicture}[scale=0.8,transform shape]
+        \begin{axis}[
+                     title=$\Im(S_{\text{p}}(f))$,
+                     xmax=7,
+                     xmin=-7,
+                     ymax=1.5,
+                     ymin=-1.1,
+                     %axis lines = middle,
+                     axis x line = middle,
+                     axis y line = middle,
+                     ytick=\empty,
+                     xtick = {-5,5,7},
+                     xticklabels = {$-f_c$,$f_c$,$f$},
+                     %x tick label style={font=\tiny},
+                     x post scale = 3.0
+                    ]
+          \addplot[color=blue,very thick] coordinates {(-6,0) (-6,-1) (-4,-1) (-4,0)};
+          \addplot[color=blue,very thick] coordinates {(6,0) (6,1) (4,1) (4,0)};
+        \end{axis}
+      \end{tikzpicture}
+  \end{subfigure}
+  \caption{Spectrum of complex envelope and passband signals \label{fig:complex-passband-spectrums}}
+  \end{figure}
+  
+    \begin{figure}
+    \centering
+      \begin{tikzpicture}[scale=1.0,transform shape]
+      \node at (-0.5,2) (sc) {$s_{\text{i}}(t)$};
+      \node at (-0.5,-2) (ss) {$s_{\text{q}}(t)$};
+      \node[circle, draw, minimum size = 5mm] at (1,2) (prodc) {$\times$};
+      \node[circle, draw, minimum size = 5mm] at (1,-2) (prods) {$\times$};
+      \node[circle, draw, minimum size = 5mm] at (4,0) (adder) {$+$};
+      \node at (1,0.75) (cos) {$\ \ \sqrt{2}\cos 2\pi f_ct$};
+      \node at (1,-0.75) (sin) {$-\sqrt{2}\sin 2\pi f_ct$};
+      \node at (6,0) (sp) {$s_{\text{p}}(t)$};
+      \draw[->,very thick] (sc) -- (prodc);
+      \draw[->,very thick] (ss) -- (prods);
+      \draw[->,very thick] (prodc) -| (adder);
+      \draw[->,very thick] (prods) -| (adder);
+      \draw[->,very thick] (cos) -- (prodc);
+      \draw[->,very thick] (sin) -- (prods);
+      \draw[->,very thick] (adder) -- (sp);
+      \end{tikzpicture}
+   \caption{Up-conversion: Getting passband signal from complex envelope
+   \label{fig:upconversion}}
+  \end{figure}
+  
+    \begin{figure}
+    \centering
+      \begin{tikzpicture}[scale=1.0,transform shape]
+      \node at (5,2) (sc) {$s_c(t)$};
+      \node at (5,-2) (ss) {$s_s(t)$};
+      \node[circle, draw, minimum size = 5mm] at (1,2) (prodc) {$\times$};
+      \node[circle, draw, minimum size = 5mm] at (1,-2) (prods) {$\times$};
+      \node[rectangle, draw, minimum size = 5mm] at (3,2) (LPc) {LPF};
+      \node[rectangle, draw, minimum size = 5mm] at (3,-2) (LPs) {LPF};
+      \node at (1,0.75) (cos) {$\ \ \sqrt{2}\cos 2\pi f_ct$};
+      \node at (1,-0.75) (sin) {$-\sqrt{2}\sin 2\pi f_ct$};
+      \node at (-2,0) (sp) {$s_p(t)$};
+      \draw[->,very thick] (prodc) -- (LPc);
+      \draw[->,very thick] (prods) -- (LPs);
+      \draw[->,very thick] (LPc) -- (sc);
+      \draw[->,very thick] (LPs) -- (ss);
+      \draw[->,very thick] (cos) -- (prodc);
+      \draw[->,very thick] (sin) -- (prods);
+      \draw[->,very thick] (-0.75,0) |- (prodc);
+      \draw[->,very thick] (-0.75,0) |- (prods);
+      \draw[very thick] (sp) -- (-0.75,0);
+      \end{tikzpicture}
+      \caption{Down-conversion: Getting the complex envelope from passband
+      \label{fig:downconversion}}
+  \end{figure}
+
+\section{IQ Modulator Board}
+We have developed an IQ modulator board at Wadhwani Electronics Labs.
+This IQ modulator board features Linear Technology's LTC5598 modulator LTC6946-1 synthesizer and PIC18F4550 microcontroller.
+The block diagram of this board is given in Figure \ref{fig:board-block-diagram}.
+\begin{figure}
+\centering
+\begin{tikzpicture}[auto, thick, node distance=2cm, >=triangle 45, every text node part/.style={align=center}]
+\draw
+  node at (0, 2)(jtag) {\large ICSP}
+  node at (0,0)[draw, thick, rectangle](uc){\large MICRO \\ CONTROLLER \\ \normalsize PIC18F4550 }
+  node at (0, -2)(usb) {\large USB}
+  node at (4,0)[draw, thick, rectangle](pll){\large SYNTHESIZER \\ \normalsize LTC6946-1}
+  node at (4,-2)(refin){\large 10MHz \\ REFERENCE \\ INPUT}
+  node at (9.5,2) (sit){\large $s_{\text{i}}(t)$}
+  node at (9.5,-2) (sqt){\large $s_{\text{q}}(t)$}
+  node at (12,0)(rf){\large $s_{\text{p}}(t)$}
+  node at (9.5,0)[draw, thick, rectangle](mod){\large IQ \\ MODULATOR \\ \normalsize LTC5598};
+  \draw[->,very thick] (jtag) -- (uc);
+  \draw[->,very thick] (usb) -- (uc);
+  \draw[->,very thick] (uc) -- (pll);
+  \draw[->,very thick] (pll) -- node[above] {\large $\cos(2\pi f_ct)$} (mod);
+  \draw[->,very thick] (refin) -- (pll);
+  \draw[->,very thick] (sit) -- (mod);
+  \draw[->,very thick] (sqt) -- (mod);
+  \draw[->,very thick] (mod) -- (rf);
+\end{tikzpicture}
+\caption{Block diagram of IQ modulator board \label{fig:board-block-diagram}}
+\end{figure}
+
+LTC 5598\cite{bib:modchip}
+is a high linearity direct quadraturemodulator, which works in the range from 5MHz to 1600MHz. 
+It allows direct modulation of an RF signal using differential I and Q signals.
+The I/Q baseband inputs consist of voltage-to-current converters that in turn drive double-balanced mixers.
+The outputs of these mixers are summed and applied to a buffer,
+which converts the differential mixer signals to a $50\Omega$ single-ended buffered RF output.
+
+
+
+
 %  \includegraphics[scale=0.23]{figures/grc.png}
 %  \caption{GNU Radio companion. The area containing the blocks in the center is the place where we assemble the flow-graphs.
 %  We can drag and drop different signal processing blocks to the flow-graph from the list-box on the right.
@@ -150,31 +392,10 @@ If it produces and consumes at the same rate, it's a sync block.
 %  One can use this variable in other block by putting the variable id i.e, samp\_rate.
 %  \label{fig:newgraph}}
 % \end{figure}
-\begin{figure}
-\centering
- \includegraphics[scale=0.40]{figures/audio-play1.png}
- \caption{Playing 500Hz sinusoid on audio output.
- Take signal source and audio sink block from the list of blocks.
- Set the data type of signal source to float.
- Set the frequency to 500Hz and sampling rate to 32k.
- Set the sampling rate in the audio sink block to 32k.
- Connect these blocks and execute the flow-graph.\label{fig:audio-play1}}
-\end{figure}
-\begin{figure}
- \centering
- \includegraphics[scale=0.4]{figures/signal-source-out}
- \caption{The first 64 samples of output from the signal source. \label{fig:signal-source-out}}
-\end{figure}
 
-\begin{figure}
- \centering
- \includegraphics[scale=0.4]{figures/fft.png}
- \caption{Computing FFT \label{fig:compute-fft}}
-\end{figure}
-
-
+\newpage
 \begin{appendices}
-\lstinputlisting[language=Python, caption=The python program corresponding to the flow-graph in Figure \ref{fig:audio-play1}]
+\lstinputlisting[language=Python, caption=The python program corresponding to the flow-graph in Figure \ref{fig:audio-play1}, label=lst:audio-play1]
 {flowgraphs/audioplay1.py}
 \end{appendices}
 
@@ -208,6 +429,9 @@ If it produces and consumes at the same rate, it's a sync block.
  \url{http://www.linear.com/product/LTC5598} 
  \bibitem{bib:pllchip}
  \url{http://www.linear.com/product/LTC6946} 
+ 
+ \bibitem{bib:madhov} Upamanyu Madhov, ``Fundamentals of Digital Communication'', CUP 2008.
+ 
  
  \end{thebibliography}
 
