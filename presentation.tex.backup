@@ -1,0 +1,82 @@
+\documentclass{beamer}
+%\usetheme{CambridgeUS}
+\usefonttheme{professionalfonts}
+\usefonttheme{serif}
+\usepackage[scaled=0.92]{helvet}
+% \usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{amsmath, amssymb}
+% \usepackage{pgf}
+\usetikzlibrary{calc}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{positioning}
+\usetikzlibrary{intersections} 
+%\usepackage{pgfplots}
+% \usetikzlibrary{arrows,backgrounds,shapes,matrix,positioning,fit}
+% \usetikzlibrary{decorations.markings}
+\usepackage{textcomp}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{epstopdf}
+\usepackage{color}
+\usepackage{alltt}
+\usepackage{hyperref}
+\usepackage{listings}
+\usetikzlibrary{calc}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{arrows, shapes, shadows, positioning}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xfrac}
+\setbeamertemplate{bibliography item}{[\theenumiv]}
+
+\mode<presentation>
+{
+  \usetheme{CambridgeUS}
+  %\useoutertheme{infolines} % Showing only current section in navigation
+  \setbeamertemplate{headline}{}  % Empty headline
+  \setbeamertemplate{footline}[frame number]  % Getting rid of footer items except slide number
+  \setbeamercovered{invisible}
+  \beamertemplatenavigationsymbolsempty % Getting rid of navigation bullets at the bottom
+}
+
+\title[IQ Modulator]{IQ Modulator Board}
+\author[Manu]
+{
+  Manu T S\\
+  \href{mailto:manu.ts@ee.iitb.ac.in}{manu.ts@ee.iitb.ac.in}
+}
+\institute[IIT Bombay]
+{
+  Department of Electrical Engineering\\
+  Indian Institute of Technology Bombay
+}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{IQ Modulation}
+  Any passband signal $s_{\text{p}}(t)$ can be written as
+  \pause
+  \begin{equation}
+      s_{\text{p}}(t) = \sqrt{2}s_{\text{i}}(t)\operatorname{cos}(2\pi f_ct) - \sqrt{2}s_{\text{q}}(t)\operatorname{sin}(2\pi f_ct) \nonumber
+  \end{equation}
+  \pause
+  where,
+  \begin{equation}
+    s(t) = s_{\text{i}}(t) + \text{j}s_{\text{q}}(t) \nonumber
+  \end{equation}
+  \pause
+  is called the complex envelope of $s_{\text{p}}(t)$.
+\end{frame}
+
+\begin{frame}{IQ Modulation}
+ 
+\end{frame}
+
+\end{document}

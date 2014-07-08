@@ -10,6 +10,7 @@
 \usepackage{subcaption}
 % For maths
 \usepackage{amsmath}
+\usepackage{amssymb}
 % Set Margin
 \usepackage[margin=1in]{geometry}
 % For Figures
@@ -110,7 +111,8 @@ In order to illuminate this diffuse topic a little, let's start with an example.
 Our aim is to generate a sinusoid and play it on audio output.
 Open GNU Radio companion by executing gnuradio-companion on a terminal. 
 The completed flow-graph is shown in Figure \ref{fig:audio-play1}.
-\begin{figure}
+
+\begin{figure}[b]
 \centering
  \includegraphics[scale=0.40]{figures/audio-play1.png}
  \caption{Playing 500Hz sinusoid on audio output.
@@ -181,6 +183,10 @@ and it throttles the number of items passing through it.
 
 Also when we have hardware involving different sampling rates, we might have to use some up-sampling/down-sampling
 so that we meet the sampling rate requirement of all the hardwares.
+\subsection{Complex data type in GNU Radio}
+Most of the signal processing in GNU Radio is done on complex numbers.
+In GNU Radio a complex number occupies 8 bytes in memory.
+It actually consists of two 4-byte floats representing the real and imaginary components respectively.
 
 \section{IQ Modulation\cite{bib:madhov}}
 In RF communication we transmit our information in a small passband around a high frequency carrier.
@@ -317,15 +323,15 @@ Figure \ref{fig:downconversion} shows the process of IQ demodulation.
     \begin{figure}
     \centering
       \begin{tikzpicture}[scale=1.0,transform shape]
-      \node at (5,2) (sc) {$s_c(t)$};
-      \node at (5,-2) (ss) {$s_s(t)$};
+      \node at (5,2) (sc) {$s_{\text{i}}(t)$};
+      \node at (5,-2) (ss) {$s_{\text{q}}(t)$};
       \node[circle, draw, minimum size = 5mm] at (1,2) (prodc) {$\times$};
       \node[circle, draw, minimum size = 5mm] at (1,-2) (prods) {$\times$};
       \node[rectangle, draw, minimum size = 5mm] at (3,2) (LPc) {LPF};
       \node[rectangle, draw, minimum size = 5mm] at (3,-2) (LPs) {LPF};
       \node at (1,0.75) (cos) {$\ \ \sqrt{2}\cos 2\pi f_ct$};
       \node at (1,-0.75) (sin) {$-\sqrt{2}\sin 2\pi f_ct$};
-      \node at (-2,0) (sp) {$s_p(t)$};
+      \node at (-2,0) (sp) {$s_{\text{p}}(t)$};
       \draw[->,very thick] (prodc) -- (LPc);
       \draw[->,very thick] (prods) -- (LPs);
       \draw[->,very thick] (LPc) -- (sc);
@@ -343,11 +349,13 @@ Figure \ref{fig:downconversion} shows the process of IQ demodulation.
 \section{IQ Modulator Board}
 We have developed an IQ modulator board at Wadhwani Electronics Labs.
 This IQ modulator board features Linear Technology's LTC5598 modulator LTC6946-1 synthesizer and PIC18F4550 microcontroller.
+With the combination of these chips the IQ modulator can transmit in the range 373MHz - 1600MHz.
 The block diagram of this board is given in Figure \ref{fig:board-block-diagram}.
 \begin{figure}
 \centering
 \begin{tikzpicture}[auto, thick, node distance=2cm, >=triangle 45, every text node part/.style={align=center}]
 \draw
+  node at (-2.5, 0)[draw, thick, rectangle](switch){\large 8 bit \\ DIP \\ Switch}
   node at (0, 2)(jtag) {\large ICSP}
   node at (0,0)[draw, thick, rectangle](uc){\large MICRO \\ CONTROLLER \\ \normalsize PIC18F4550 }
   node at (0, -2)(usb) {\large USB}
@@ -365,6 +373,7 @@ The block diagram of this board is given in Figure \ref{fig:board-block-diagram}
   \draw[->,very thick] (sit) -- (mod);
   \draw[->,very thick] (sqt) -- (mod);
   \draw[->,very thick] (mod) -- (rf);
+  \draw[->,very thick] (switch) -- (uc);
 \end{tikzpicture}
 \caption{Block diagram of IQ modulator board \label{fig:board-block-diagram}}
 \end{figure}
@@ -372,55 +381,117 @@ The block diagram of this board is given in Figure \ref{fig:board-block-diagram}
 LTC 5598\cite{bib:modchip}
 is a high linearity direct quadraturemodulator, which works in the range from 5MHz to 1600MHz. 
 It allows direct modulation of an RF signal using differential I and Q signals.
+The internal block digram of LTC5598 is given in Figure \ref{fig:mod-block}.
+The baseband input $s_{\text{i}}(t)$ is fed through the differential pair BBPI(pin 21) and BBMI(pin 22).
+The baseband input $s_{\text{q}}(t)$ is fed through the differential pair BBPQ(pin 10) and BBMQ(pin 9).
 The I/Q baseband inputs consist of voltage-to-current converters that in turn drive double-balanced mixers.
 The outputs of these mixers are summed and applied to a buffer,
 which converts the differential mixer signals to a $50\Omega$ single-ended buffered RF output.
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{figures/ltc5598-block-diagram.jpg}
+\caption{Internal block digram of LTC5598 chip. \label{fig:mod-block}}
+\end{figure}
+The four balanced I and Q baseband input ports are intended for DC coupling from a source with a common-mode voltage level of about 0.5V.
+We will be generating our baseband inputs $s_{\text{i}}(t)$ and $s_{\text{q}}(t)$ from a two channel arbitrary function generator.
+Since these signals are single ended, we will be feeding BBPI with $s_{\text{i}}(t)$ and BBPQ wit $s_{\text{q}}(t)$.
+A DC offset(0.5 typical) should be added with $s_{\text{i}}(t)$ and $s_{\text{q}}(t)$ at the AFG to meet common mode voltage requirement.
+Their differential pair BBMI and BBMQ are tied to a DC voltage(0.5V fixed/0-0.6V adjustable depending on jumper setting) on the board.
+The LO path consists of an LO buffer with single-ended or differential inputs, and precision
+quadrature generators that produce the LO drive for the mixers.
+In our design, the carrier at $f_c$(LO) generated from LTC6946-1 is fed through the LOP and LOM differential inputs.
+The passband output $s_{\text{p}}(t)$ can be fed to an antenna from the RF(pin 16) output.
 
+LTC6946-1\cite{bib:pllchip} is a high performance, low noise phase-locked loop (PLL) with a fully integrated VCO,
+including a reference divider, phase-frequency detector (PFD) with phase-lock indicator,
+ultralow noise charge pump, integer feedback divider, and VCO output divider.
+It's frequency range is from 373MHz to 3740MHz.
+The RF$^-$ and the RF$^+$ outputs from the PLL are respectively connected to the LOM and LOP input of the modulator.
+The internal block diagram of LTC6946-1 is given in Figure \ref{fig:pll-block}.
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{figures/pll-block-diagram.jpg}
+\caption{Internal block digram of LTC6946 chip. \label{fig:pll-block}}
+\end{figure}
 
+In our design the reference input of the PLL is fed from a 10MHz crystal oscillator at the REF$^+$(pin 27) input.
+There are 12 registers in the PLL. We name them h00 to h0B.
+These registers can be written of read through the chips SPI compatible serial port.
+We use PIC18F4550 as the SPI controller.
+The output frequency is controlled by values in the register.
+A 10-bit divider, R\_DIV, is used to reduce the frequency seen at the PFD.
+Its divide ratio $R$ may be set to any integer from 1 to 1023, inclusive.
+The 16-bit $N$ divider provides the feedback from the VCO to the PFD.
+Its divide ratio N may be set to any integer from 32 to 65535, inclusive.
+The 3-bit $O$ divider can reduce the frequency from the VCO
+to extend the output frequency range. Its divide ratio $O$
+may be set to any integer from 1 to 6, inclusive, outputting a 50\% duty cycle even with odd divide values.
+The frequency at RF$^\pm$ is given by
+\begin{equation}
+ f_{\text{RF}} = \frac{f_{\text{REF}}*N}{O*R}
+\end{equation}
 
+The PIC18F4550 which is the SPI master, loads the registers in the PLL with default configuration at the system startup.
+We have defined the following default configuration values.
+\begin{align*}
+ R &= 4 \\
+ O &= 5
+\end{align*}
+With these settings, when the $N$ value changes by 1, the $f_{\text{RF}}$ changes by $f_{\text{STEP}}$, where
+\begin{align}
+ f_{\text{STEP}} &= \frac{10}{4*5}\text{MHz} \nonumber \\
+                 &= 500\text{kHz}
+\end{align}
+The $N$ value can be changed using the 8 bit DIP switch.
+The switch setting $S~ \in ~\lbrace 0, 1, \cdots, 255 \rbrace$ is read by the microcontroller.
+The default program defines the base value $N_0$ of $N$ to be 0x0380(890).
+The value of $N$ is given by
+\begin{equation}
+ N = N_0 + S
+\end{equation}
+Thus with the default settings we can generate $f_c$, where
+\begin{align}
+ f_c &= f_{\text{STEP}}*(890 + S)\text{kHz},~~S~ \in ~\lbrace 0, 1, \cdots, 255 \rbrace \nonumber \\
+     &= (448 + 0.5S)\text{MHz},~~S~ \in ~\lbrace 0, 1, \cdots, 255 \rbrace
+\end{align}
 
-%  \includegraphics[scale=0.23]{figures/grc.png}
-%  \caption{GNU Radio companion. The area containing the blocks in the center is the place where we assemble the flow-graphs.
-%  We can drag and drop different signal processing blocks to the flow-graph from the list-box on the right.
-%  The text-box on the bottom displays the output written to the terminal.\label{fig:grc}}
-% \end{figure}
-% \begin{figure}
-% \centering
-%  \includegraphics[scale=0.4]{figures/gnuradio-new-flowgraph.png}
-%  \caption{Constructing a flow graph. On the left top we see the options block. The variable block defines a variable called samp\_rate.
-%  We can change the value associated with this variable by double clicking on it and editing the property window that pops up.
-%  One can use this variable in other block by putting the variable id i.e, samp\_rate.
-%  \label{fig:newgraph}}
-% \end{figure}
+One can modify the default settings in the PLL by programming the microcontroller, and can tune to other frequencies.
+The details of how to program the PLL is given in \cite{bib:pllchip}. We have provided ICSP interface and USB interface
+for programming the microcontroller.
+
+\section{RTL-SDR Dongles\cite{bib:rtlsdr}}
+Realtek RTL2832U DVB-T tuner dongles are used for DAB/DAB+/FM demodulation.
+Since the RTL2832U chip allows transferring the raw I/Q samples to the host, it can be used as a cheap SDR.
+The RTL2832U outputs 8-bit I/Q-samples, and the highest theoretically possible sample-rate is 3.2 MS/s.
+So theoretically it can capture a signals of upto 3.2MHz passband bandwidth.
+We usually work at lower sampling rates, so that samples are not lost.
+The frequency range of operation is determined by the tuner in the circuit.
+The dongles in our lab have Rafael Micro tuner, whose frequency range of operation is 24 - 1766 MHz.
+
+In short these dongles do what is shown in Figure \ref{fig:downconversion}
+and gives the samples of $s_{\text{i}}(t)$ and $s_{\text{q}}(t)$ to the host computer.
+A GNU Radio flow-graph in the host computer can read these samples and can be processed using various DSP algorithms in GNU Radio.
+
+\section{Universal Software Radio Peripheral(USRP)\cite{bib:usrp}}
+USRP is a software radio platform, which usually have both transmit and receive capabilities.
+USRP can be directly interfaced with a computer through USB of Gigabit Ethernet.
+When used as a transmitter a USRP essentially do what is shown in Figure \ref{fig:upconversion},
+in addition to generation of both of both the $s_{\text{i}}(t)$ and $s_{\text{q}}(t)$,
+from their respective samples supplied by the host computer, through digital to analog conversion.
+When used a receiver, a USRP essentially do what is shown in Figure \ref{fig:downconversion} and
+gives the samples of $s_{\text{i}}(t)$ and $s_{\text{q}}(t)$ to the host computer.
+
+In our lab we will be using USRP B100 series. B100 USRPs have USB 2.0 interface.
+We can set the sample width to 8-bits or 16-bits.
+With 8 bit sample width, each of I and Q sample takes 8 bits each, and thus a complex sample in total takes 16 bits.
+With 16 bit sample width, each of I and Q sample takes 16 bits each, and thus a complex sample in total takes 32 bits.
+The speed of of USB 2.0 interface is 480Mbps.
+So we can get maximum sampling rate of 30MS/s at 8 bit sample width.
+Thus we can capture/send messages of bandwidth upto 30MHz.
+With 16 bit sample width we can get maximum sampling rate of 15MS/s.
+limiting our maximum bandwidth to 15MHz.
 
 \newpage
-\begin{appendices}
-\lstinputlisting[language=Python, caption=The python program corresponding to the flow-graph in Figure \ref{fig:audio-play1}, label=lst:audio-play1]
-{flowgraphs/audioplay1.py}
-\end{appendices}
-
-% \section{IQ Modulator Board}
-% The IQ modulator board features Linear Technology's LTC 5598\cite{bib:modchip}
-% High Linearity Direct Quadrature
-% Modulator, which works in the range from 5MHz to 1600MHz. 
-% It allows direct modulation of an RF signal using differential I and Q signals.
-% The I/Q baseband inputs consist of voltage-to-current converters that in turn drive double-balanced mixers.
-% The outputs of these mixers are summed and applied to a buffer,
-% which converts the differential mixer signals to a $50\Omega$ single-ended buffered RF output.
-% 
-% The carrier to the modulator is supplied from Linear Technology's LTC 6946-1\cite{bib:pllchip}, 
-% an ultra-low noise and spurious integer-N synthesizer with integrated VCO. 
-% This chip is a high performance, low noise phase-locked loop (PLL) with a fully integrated VCO,
-% including a reference divider, phase-frequency detector (PFD) with phase-lock indicator,
-% ultralow noise charge pump, integer feedback divider, and VCO output divider.
-% It's frequency range is from 373MHz to 3740MHz. 
-% With the combination of these chips the transmitter can communicate between 373MHz to 1600MHz.
-% 
-% The synthesizer can be programmed through SPI interface so as to select different frequencies of operation.
-% We use microchip's PIC18F4550 as the SPI controller and also for USB interfacing.
-% The modulator board is designed to work either using the USB power or from external power supply.
-
-
 %%% References
 \begin{thebibliography}{9}
  \bibitem{bib:gnuradio}
@@ -431,9 +502,17 @@ which converts the differential mixer signals to a $50\Omega$ single-ended buffe
  \url{http://www.linear.com/product/LTC6946} 
  
  \bibitem{bib:madhov} Upamanyu Madhov, ``Fundamentals of Digital Communication'', CUP 2008.
- 
- 
+ \bibitem{bib:rtlsdr}
+ \url{http://sdr.osmocom.org/trac/wiki/rtl-sdr}
+ \bibitem{bib:usrp}
+ \url{http://www.ettus.com/home}
  \end{thebibliography}
+
+\newpage
+\begin{appendices}
+\lstinputlisting[language=Python, caption=The python program corresponding to the flow-graph in Figure \ref{fig:audio-play1}, label=lst:audio-play1]
+{flowgraphs/audioplay1.py}
+\end{appendices}
 
 \end{document}
 

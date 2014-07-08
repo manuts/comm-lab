@@ -10,6 +10,7 @@
 \usepackage{subcaption}
 % For maths
 \usepackage{amsmath}
+\usepackage{amssymb}
 % Set Margin
 \usepackage[margin=1in]{geometry}
 % For Figures
@@ -92,15 +93,16 @@ That requirement aside, any data type can be passed from one block to another
 GNU Radio applications are primarily written using the Python programming language, 
 while the supplied, performance-critical signal processing path is implemented in C++
 using processor floating point extensions, where available.
-GNU Radio Companion(GRC) is a Simulink-like graphical tool to design signal processing flow graphs.
+GNU Radio Companion(GRC) is a Simulink-like graphical tool to design signal processing flow-graphs.
 
 GNU Radio supports several radio front-ends, either natively or through additional out-of-tree modules.
 We will be using Ettus Research USRP platform and RTL-SDR TV tuners.
 
 \subsection{First flow-graph}
 Flow graphs are graphs (as in graph theory) through which data flows.
-Many GNU Radio applications contain nothing other than a flow graph.
+Many GNU Radio applications contain nothing other than a flow-graph.
 The nodes of such a graph are called blocks, and the data flows along the edges.
+The blocks are connected at ports. Data flows into or out of a block through these ports.
 
 Any actual signal processing is done in the blocks.
 Ideally, every block does exactly one job - this way GNU Radio stays modular and flexible.
@@ -109,8 +111,9 @@ Blocks are usually written in C++ (might also be Python); writing new blocks is 
 In order to illuminate this diffuse topic a little, let's start with an example.
 Our aim is to generate a sinusoid and play it on audio output.
 Open GNU Radio companion by executing gnuradio-companion on a terminal. 
-The completed flow-graph is shown in Figure \ref{fig:audio-play1}.
-\begin{figure}
+Construct a flow-graph as shown in Figure \ref{fig:audio-play1}.
+
+\begin{figure}[b]
 \centering
  \includegraphics[scale=0.40]{figures/audio-play1.png}
  \caption{Playing 500Hz sinusoid on audio output.
@@ -120,10 +123,8 @@ The completed flow-graph is shown in Figure \ref{fig:audio-play1}.
  Set the sampling rate in the audio sink block to 32k.
  Connect these blocks and execute the flow-graph.\label{fig:audio-play1}}
 \end{figure}
-
-The blocks are connected at ports. 
-The first block has no input port, it produces samples. 
-Such a block, with only output ports, is called a source. 
+ 
+The first block has no input port. Such a block, with only output ports, is called a source. 
 In an analog fashion, the final block, with no outputs, is called a sink.
 
 So what's happening here?
@@ -139,21 +140,22 @@ Finally, the samples are passed to the audio output block which plays the incomi
  \caption{The first 64 samples of output from the signal source. \label{fig:signal-source-out}}
 \end{figure}
 
-In general, we call whatever a block outputs an item. 
+In general, we call whatever a block outputs/consumes, an item. 
 In Figure \ref{fig:audio-play1}, one item was a float value representing one sample produced by the signal source. 
 However, an item can be anything that can be represented digitally. 
 The most common types of samples are real samples (as before), complex samples (the most common type in software defined radio), integer types, and vectors of these scalar types.
 
 In Figure \ref{fig:audio-play1}, apart from playing the samples on audio card, everything else is done in software.
 Since the audio card can only take specific sampling rates(32kHz, 44.1kHz, etc)
-the rate at which the samples are processed through this flow graph will be equal to the sampling rate of the audio card.
+the rate at which the samples are processed through this flow-graph will be equal to the sampling rate of the audio card.
+
 As mentioned before GNU Radio applications are written in python programming language. When we run any flow-graph
 in GNU Radio companion, it is a python program that runs behind the scene. The python program corresponding to 
 the flow-graph in Figure \ref{fig:audio-play1} is given in Listing \ref{lst:audio-play1}.
-This program is auto-generated when we run a GNU Radio companion(GRC) flow graph.
+This program is auto-generated when we run the flow-graph in Figure \ref{fig:audio-play1} in grc.
 
 Let us consider another example of computing the FFT of a signal source.
-The flow graph is given in Figure \ref{fig:compute-fft}.
+The flow-graph is given in Figure \ref{fig:compute-fft}.
 In this example, the second block (stream to vector) produces one item(which is a vector of 1024 complex number) for every 1024 input items.
 So, the rate at which it produces items is 1024 times smaller then the rate at which it consumes items 
 (the fact that it actually produces bytes at the same rate it consumes them is irrelevant here).
@@ -167,9 +169,9 @@ If it produces and consumes at the same rate, it's a sync block.
 \end{figure}
 
 Let us ask the question what is the base sampling rate in Figure \ref{fig:compute-fft}?
-Or how many complex numbers produced by the signal source, will be processed through this flow graph in a second?
+Or how many complex numbers produced by the signal source, will be processed through this flow-graph in a second?
 Well, we can't really answer this question.
-In this flow graph all that we are do, is to generate some numbers, do some math on the generated numbers, and save the output to a file.
+In this flow-graph all that we are do, is to generate some numbers, do some math on the generated numbers, and save the output to a file.
 As long as there is no hardware clock present which fixes the rate, 
 sampling rate is meaningless--only relative rates (i.e. input to output rates are important. 
 The computer may handle the samples as fast as it wants.
@@ -181,6 +183,10 @@ and it throttles the number of items passing through it.
 
 Also when we have hardware involving different sampling rates, we might have to use some up-sampling/down-sampling
 so that we meet the sampling rate requirement of all the hardwares.
+\subsection{Complex data type in GNU Radio}
+Most of the signal processing in GNU Radio is done on complex numbers.
+In GNU Radio a complex number occupies 8 bytes in memory.
+It actually consists of two 4-byte floats representing the real and imaginary components respectively.
 
 \section{IQ Modulation\cite{bib:madhov}}
 In RF communication we transmit our information in a small passband around a high frequency carrier.
@@ -317,15 +323,15 @@ Figure \ref{fig:downconversion} shows the process of IQ demodulation.
     \begin{figure}
     \centering
       \begin{tikzpicture}[scale=1.0,transform shape]
-      \node at (5,2) (sc) {$s_c(t)$};
-      \node at (5,-2) (ss) {$s_s(t)$};
+      \node at (5,2) (sc) {$s_{\text{i}}(t)$};
+      \node at (5,-2) (ss) {$s_{\text{q}}(t)$};
       \node[circle, draw, minimum size = 5mm] at (1,2) (prodc) {$\times$};
       \node[circle, draw, minimum size = 5mm] at (1,-2) (prods) {$\times$};
       \node[rectangle, draw, minimum size = 5mm] at (3,2) (LPc) {LPF};
       \node[rectangle, draw, minimum size = 5mm] at (3,-2) (LPs) {LPF};
       \node at (1,0.75) (cos) {$\ \ \sqrt{2}\cos 2\pi f_ct$};
       \node at (1,-0.75) (sin) {$-\sqrt{2}\sin 2\pi f_ct$};
-      \node at (-2,0) (sp) {$s_p(t)$};
+      \node at (-2,0) (sp) {$s_{\text{p}}(t)$};
       \draw[->,very thick] (prodc) -- (LPc);
       \draw[->,very thick] (prods) -- (LPs);
       \draw[->,very thick] (LPc) -- (sc);
@@ -342,12 +348,14 @@ Figure \ref{fig:downconversion} shows the process of IQ demodulation.
 
 \section{IQ Modulator Board}
 We have developed an IQ modulator board at Wadhwani Electronics Labs.
-This IQ modulator board features Linear Technology's LTC5598 modulator LTC6946-1 synthesizer and PIC18F4550 microcontroller.
+This IQ modulator board features Linear Technology's LTC5598 modulator LTC6946-1 synthesizer and PIC18F4550 micro-controller.
+With the combination of these chips the IQ modulator can transmit in the range 373MHz - 1600MHz.
 The block diagram of this board is given in Figure \ref{fig:board-block-diagram}.
 \begin{figure}
 \centering
 \begin{tikzpicture}[auto, thick, node distance=2cm, >=triangle 45, every text node part/.style={align=center}]
 \draw
+  node at (-2.5, 0)[draw, thick, rectangle](switch){\large 8 bit \\ DIP \\ Switch}
   node at (0, 2)(jtag) {\large ICSP}
   node at (0,0)[draw, thick, rectangle](uc){\large MICRO \\ CONTROLLER \\ \normalsize PIC18F4550 }
   node at (0, -2)(usb) {\large USB}
@@ -365,13 +373,17 @@ The block diagram of this board is given in Figure \ref{fig:board-block-diagram}
   \draw[->,very thick] (sit) -- (mod);
   \draw[->,very thick] (sqt) -- (mod);
   \draw[->,very thick] (mod) -- (rf);
+  \draw[->,very thick] (switch) -- (uc);
 \end{tikzpicture}
 \caption{Block diagram of IQ modulator board \label{fig:board-block-diagram}}
 \end{figure}
 
 LTC 5598\cite{bib:modchip}
-is a high linearity direct quadraturemodulator, which works in the range from 5MHz to 1600MHz. 
+is a high linearity direct quadrature modulator, which works in the range from 5MHz to 1600MHz. 
 It allows direct modulation of an RF signal using differential I and Q signals.
+The internal block digram of LTC5598 is given in Figure \ref{fig:mod-block}.
+The baseband input $s_{\text{i}}(t)$ is fed through the differential pair BBPI(pin 21) and BBMI(pin 22).
+The baseband input $s_{\text{q}}(t)$ is fed through the differential pair BBPQ(pin 10) and BBMQ(pin 9).
 The I/Q baseband inputs consist of voltage-to-current converters that in turn drive double-balanced mixers.
 The outputs of these mixers are summed and applied to a buffer,
 which converts the differential mixer signals to a $50\Omega$ single-ended buffered RF output.
@@ -380,51 +392,523 @@ which converts the differential mixer signals to a $50\Omega$ single-ended buffe
 \includegraphics[scale=0.4]{figures/ltc5598-block-diagram.jpg}
 \caption{Internal block digram of LTC5598 chip. \label{fig:mod-block}}
 \end{figure}
+The four balanced I and Q baseband input ports are intended for DC coupling from a source with a common-mode voltage level of about 0.5V.
+We will be generating our baseband inputs $s_{\text{i}}(t)$ and $s_{\text{q}}(t)$ from a two channel arbitrary function generator.
+Since these signals are single ended, we will be feeding BBPI with $s_{\text{i}}(t)$ and BBPQ wit $s_{\text{q}}(t)$.
+A DC offset(0.5 typical) should be added with $s_{\text{i}}(t)$ and $s_{\text{q}}(t)$ at the AFG to meet common mode voltage requirement.
+Their differential pair BBMI and BBMQ are tied to a DC voltage(0.5V fixed/0-0.6V adjustable depending on jumper setting) on the board.
+The LO path consists of an LO buffer with single-ended or differential inputs, and precision
+quadrature generators that produce the LO drive for the mixers.
+In our design, the carrier at $f_c$(LO) generated from LTC6946-1 is fed through the LOP and LOM differential inputs.
+The passband output $s_{\text{p}}(t)$ can be fed to an antenna from the RF(pin 16) output.
 
+LTC6946-1\cite{bib:pllchip} is a high performance, low noise phase-locked loop (PLL) with a fully integrated VCO,
+including a reference divider, phase-frequency detector (PFD) with phase-lock indicator,
+ultralow noise charge pump, integer feedback divider, and VCO output divider.
+It's frequency range is from 373MHz to 3740MHz.
+The RF$^-$ and the RF$^+$ outputs from the PLL are respectively connected to the LOM and LOP input of the modulator.
+The internal block diagram of LTC6946-1 is given in Figure \ref{fig:pll-block}.
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{figures/pll-block-diagram.jpg}
+\caption{Internal block digram of LTC6946 chip. \label{fig:pll-block}}
+\end{figure}
 
+In our design the reference input of the PLL is fed from a 10MHz crystal oscillator at the REF$^+$(pin 27) input.
+There are 12 registers in the PLL. We name them h00 to h0B.
+These registers can be written of read through the chip's SPI compatible serial port.
+We use PIC18F4550 as the SPI controller.
+The output frequency is controlled by values in the register.
+A 10-bit divider, R\_DIV, is used to reduce the frequency seen at the PFD.
+Its divide ratio $R$ may be set to any integer from 1 to 1023, inclusive.
+The 16-bit N-divider provides the feedback from the VCO to the PFD.
+Its divide ratio $N$ may be set to any integer from 32 to 65535, inclusive.
+The 3-bit O-divider can reduce the frequency from the VCO
+to extend the output frequency range. Its divide ratio $O$
+may be set to any integer from 1 to 6, inclusive, outputting a 50\% duty cycle even with odd divide values.
+The frequency at RF$^\pm$ is given by
+\begin{equation}
+ f_{\text{RF}} = \frac{f_{\text{REF}}*N}{O*R}
+\end{equation}
 
-%  \includegraphics[scale=0.23]{figures/grc.png}
-%  \caption{GNU Radio companion. The area containing the blocks in the center is the place where we assemble the flow-graphs.
-%  We can drag and drop different signal processing blocks to the flow-graph from the list-box on the right.
-%  The text-box on the bottom displays the output written to the terminal.\label{fig:grc}}
-% \end{figure}
-% \begin{figure}
-% \centering
-%  \includegraphics[scale=0.4]{figures/gnuradio-new-flowgraph.png}
-%  \caption{Constructing a flow graph. On the left top we see the options block. The variable block defines a variable called samp\_rate.
-%  We can change the value associated with this variable by double clicking on it and editing the property window that pops up.
-%  One can use this variable in other block by putting the variable id i.e, samp\_rate.
-%  \label{fig:newgraph}}
-% \end{figure}
+The PIC18F4550 which is the SPI master, loads the registers in the PLL with default configuration at the system startup.
+We have defined the following default configuration values among others.
+\begin{align*}
+ R &= 4 \\
+ O &= 5
+\end{align*}
+With these settings, when the $N$ value changes by 1, the $f_{\text{RF}}$ changes by $f_{\text{STEP}}$, where
+\begin{align}
+ f_{\text{STEP}} &= \frac{f_{\text{REF}}}{O*R} \\
+		  &= \frac{10}{4*5}\text{MHz} \nonumber \\
+                 &= 500\text{kHz} \nonumber
+\end{align}
+The $N$ value can be changed using the 8 bit DIP switch.
+The switch setting $S~ \in ~\lbrace 0, 1, \cdots, 255 \rbrace$ is read by the micro-controller.
+The default program defines the base value $N_0$ of $N$ to be 0x0380(890).
+The value of $N$ is given by
+\begin{equation}
+ N = N_0 + S
+\end{equation}
+Thus with the default settings we can generate $f_c$, where
+\begin{align}
+ f_c &= f_{\text{STEP}}*(890 + S)\text{kHz},~~S~ \in ~\lbrace 0, 1, \cdots, 255 \rbrace \nonumber \\
+     &= (448 + 0.5S)\text{MHz},~~S~ \in ~\lbrace 0, 1, \cdots, 255 \rbrace
+\end{align}
+
+One can modify the default settings in the PLL by programming the micro-controller, and can tune to other frequencies.
+The details of how to program the PLL is given in \cite{bib:pllchip}. We have provided ICSP interface and USB interface
+for programming the micro-controller.
+
+\section{RTL-SDR Dongles\cite{bib:rtlsdr}}
+Realtek RTL2832U DVB-T tuner dongles are used for DAB/DAB+/FM demodulation.
+Since the RTL2832U chip allows transferring the raw I/Q samples to the host, it can be used as a cheap SDR.
+The RTL2832U outputs 8-bit I/Q-samples, and the highest theoretically possible sample-rate is 3.2 MS/s.
+So theoretically it can capture a signals of upto 3.2MHz passband bandwidth.
+We usually work at lower sampling rates, so that samples are not lost.
+The frequency range of operation is determined by the tuner in the circuit.
+The dongles in our lab have Rafael Micro tuner, whose frequency range of operation is 24 - 1766 MHz.
+
+In short these dongles do what is shown in Figure \ref{fig:downconversion}
+and gives the samples of $s_{\text{i}}(t)$ and $s_{\text{q}}(t)$ to the host computer.
+A GNU Radio flow-graph in the host computer can read these samples and these samples can be processed using various DSP algorithms in GNU Radio,
+to extract the embedded information.
+
+\section{Universal Software Radio Peripheral(USRP)\cite{bib:usrp}}
+USRP is a software radio platform, which usually have both transmit and receive capabilities.
+USRP can be directly interfaced with a computer through USB of Gigabit Ethernet.
+When used as a transmitter a USRP essentially do what is shown in Figure \ref{fig:upconversion},
+in addition to generation of both of both the $s_{\text{i}}(t)$ and $s_{\text{q}}(t)$,
+from their respective samples supplied by the host computer, through digital to analog conversion.
+When used a receiver, a USRP essentially do what is shown in Figure \ref{fig:downconversion} and
+gives the samples of $s_{\text{i}}(t)$ and $s_{\text{q}}(t)$ to the host computer.
+
+In our lab we will be using USRP B100 series. B100 USRPs have USB 2.0 interface.
+We can set the sample width to 8-bits or 16-bits.
+With 8 bit sample width, each of I and Q sample takes 8 bits each, and thus a complex sample in total takes 16 bits.
+With 16 bit sample width, each of I and Q sample takes 16 bits each, and thus a complex sample in total takes 32 bits.
+The speed of of USB 2.0 interface is 480Mbps.
+So we can get maximum sampling rate of 30MS/s at 8 bit sample width.
+Thus we can capture/send messages of bandwidth upto 30MHz.
+With 16 bit sample width we can get maximum sampling rate of 15MS/s,
+limiting our maximum bandwidth to 15MHz.
+
+The frequency range of operation of the USRP is determined by the RF daughter board attached.
+In the labs we will be using WBX daughter boards which can operate in 50 MHz to 2.2 GHz range.
 
 \newpage
-\begin{appendices}
-\lstinputlisting[language=Python, caption=The python program corresponding to the flow-graph in Figure \ref{fig:audio-play1}, label=lst:audio-play1]
-{flowgraphs/audioplay1.py}
-\end{appendices}
+\ifx\du\undefined
+  \newlength{\du}
+\fi
+\setlength{\du}{15\unitlength}
+\begin{figure}
+ \begin{tikzpicture}
+\pgftransformxscale{1.000000}
+\pgftransformyscale{-1.000000}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (8.783333\du,2.137500\du)--(8.783333\du,4.837500\du)--(12.783333\du,4.837500\du)--(12.783333\du,2.137500\du)--cycle;
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (8.783333\du,2.137500\du)--(8.783333\du,4.837500\du)--(12.783333\du,4.837500\du)--(12.783333\du,2.137500\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (10.783333\du,3.282500\du){Phase};
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (10.783333\du,4.082500\du){Detector};
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (-6.536667\du,2.175000\du)--(-6.536667\du,4.875000\du)--(-2.196667\du,4.875000\du)--(-2.196667\du,2.175000\du)--cycle;
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (-6.536667\du,2.175000\du)--(-6.536667\du,4.875000\du)--(-2.196667\du,4.875000\du)--(-2.196667\du,2.175000\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (-4.366667\du,3.320000\du){TCXO};
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (-4.366667\du,4.120000\du){10 MHz};
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (14.560193\du,1.079983\du)--(14.560193\du,5.879983\du)--(16.792693\du,5.879983\du)--(16.792693\du,1.079983\du)--cycle;
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (14.560193\du,1.079983\du)--(14.560193\du,5.879983\du)--(16.792693\du,5.879983\du)--(16.792693\du,1.079983\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (15.676443\du,3.674983\du){};
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathellipse{\pgfpoint{15.674820\du}{2.229313\du}}{\pgfpoint{0.753592\du}{0\du}}{\pgfpoint{0\du}{0.931867\du}}
+\pgfusepath{fill}
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathellipse{\pgfpoint{15.674820\du}{2.229313\du}}{\pgfpoint{0.753592\du}{0\du}}{\pgfpoint{0\du}{0.931867\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (15.674820\du,2.424313\du){};
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathellipse{\pgfpoint{15.689504\du}{4.758100\du}}{\pgfpoint{0.753592\du}{0\du}}{\pgfpoint{0\du}{0.931867\du}}
+\pgfusepath{fill}
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathellipse{\pgfpoint{15.689504\du}{4.758100\du}}{\pgfpoint{0.753592\du}{0\du}}{\pgfpoint{0\du}{0.931867\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (15.689504\du,4.953100\du){};
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{stealth}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (15.674820\du,1.297446\du)--(15.674820\du,3.161180\du);
+}
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{stealth}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (15.689504\du,3.826233\du)--(15.689504\du,5.689967\du);
+}
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{stealth}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (12.783333\du,3.487500\du)--(14.560193\du,3.479983\du);
+}
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (15.674820\du,3.161180\du)--(15.680484\du,3.777179\du);
+}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node[anchor=west] at (17.266667\du,3.450000\du){};
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (20.565000\du,2.131250\du)--(20.565000\du,4.831250\du)--(23.247500\du,4.831250\du)--(23.247500\du,2.131250\du)--cycle;
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (20.565000\du,2.131250\du)--(20.565000\du,4.831250\du)--(23.247500\du,4.831250\du)--(23.247500\du,2.131250\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (21.906250\du,3.276250\du){Loop};
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (21.906250\du,4.076250\du){Filter};
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (1.803750\du,2.158333\du)--(1.803750\du,4.858333\du)--(5.196250\du,4.858333\du)--(5.196250\du,2.158333\du)--cycle;
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (1.803750\du,2.158333\du)--(1.803750\du,4.858333\du)--(5.196250\du,4.858333\du)--(5.196250\du,2.158333\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (3.500000\du,3.303333\du){R};
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (3.500000\du,4.103333\du){Divider};
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (7.753750\du,6.008333\du)--(7.753750\du,8.708333\du)--(11.146250\du,8.708333\du)--(11.146250\du,6.008333\du)--cycle;
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (7.753750\du,6.008333\du)--(7.753750\du,8.708333\du)--(11.146250\du,8.708333\du)--(11.146250\du,6.008333\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (9.450000\du,7.153333\du){N};
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (9.450000\du,7.953333\du){Divider};
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{stealth}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (9.450000\du,6.008333\du)--(10.783333\du,4.837500\du);
+}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (12.339988\du,9.262500\du)--(12.339988\du,11.162500\du)--(14.829988\du,11.162500\du)--(14.829988\du,9.262500\du)--cycle;
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (12.339988\du,9.262500\du)--(12.339988\du,11.162500\du)--(14.829988\du,11.162500\du)--(14.829988\du,9.262500\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (13.584988\du,10.407500\du){VCO};
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{stealth}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (16.792693\du,3.479983\du)--(22.698333\du,3.481250\du);
+}
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+{\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (1.000000\du,4.000000\du)--(1.000000\du,12.000000\du);
+}}
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+{\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (1.000000\du,12.000000\du)--(16.600000\du,12.000000\du);
+}}
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+{\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (17.133333\du,12.000000\du)--(17.133333\du,0.600000\du);
+}}
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+{\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (18.733333\du,0.600000\du)--(3.133333\du,0.600000\du);
+}}
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+{\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (1.000000\du,0.600000\du)--(1.000000\du,4.000000\du);
+}}
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (21.906250\du,4.831250\du)--(19.000000\du,10.200000\du);
+}
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{stealth}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (19.000000\du,10.200000\du)--(14.829988\du,10.212500\du);
+}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (2.253750\du,8.866667\du)--(2.253750\du,11.566667\du)--(5.646250\du,11.566667\du)--(5.646250\du,8.866667\du)--cycle;
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (2.253750\du,8.866667\du)--(2.253750\du,11.566667\du)--(5.646250\du,11.566667\du)--(5.646250\du,8.866667\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (3.950000\du,10.011667\du){O};
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (3.950000\du,10.811667\du){Divider};
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{stealth}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (-2.196667\du,3.525000\du)--(1.803750\du,3.508333\du);
+}
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{stealth}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (12.289807\du,10.213180\du)--(5.646250\du,10.216667\du);
+}
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{stealth}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (9.525000\du,10.200000\du)--(9.525000\du,8.700000\du);
+}
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{stealth}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (5.196250\du,3.508333\du)--(8.783333\du,3.487500\du);
+}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node[anchor=west] at (6.000000\du,3.200000\du){fPFD};
+\end{tikzpicture}
+\end{figure}
 
-% \section{IQ Modulator Board}
-% The IQ modulator board features Linear Technology's LTC 5598\cite{bib:modchip}
-% High Linearity Direct Quadrature
-% Modulator, which works in the range from 5MHz to 1600MHz. 
-% It allows direct modulation of an RF signal using differential I and Q signals.
-% The I/Q baseband inputs consist of voltage-to-current converters that in turn drive double-balanced mixers.
-% The outputs of these mixers are summed and applied to a buffer,
-% which converts the differential mixer signals to a $50\Omega$ single-ended buffered RF output.
-% 
-% The carrier to the modulator is supplied from Linear Technology's LTC 6946-1\cite{bib:pllchip}, 
-% an ultra-low noise and spurious integer-N synthesizer with integrated VCO. 
-% This chip is a high performance, low noise phase-locked loop (PLL) with a fully integrated VCO,
-% including a reference divider, phase-frequency detector (PFD) with phase-lock indicator,
-% ultralow noise charge pump, integer feedback divider, and VCO output divider.
-% It's frequency range is from 373MHz to 3740MHz. 
-% With the combination of these chips the transmitter can communicate between 373MHz to 1600MHz.
-% 
-% The synthesizer can be programmed through SPI interface so as to select different frequencies of operation.
-% We use microchip's PIC18F4550 as the SPI controller and also for USB interfacing.
-% The modulator board is designed to work either using the USB power or from external power supply.
 
-
+\newpage
 %%% References
 \begin{thebibliography}{9}
  \bibitem{bib:gnuradio}
@@ -435,9 +919,17 @@ which converts the differential mixer signals to a $50\Omega$ single-ended buffe
  \url{http://www.linear.com/product/LTC6946} 
  
  \bibitem{bib:madhov} Upamanyu Madhov, ``Fundamentals of Digital Communication'', CUP 2008.
- 
- 
+ \bibitem{bib:rtlsdr}
+ \url{http://sdr.osmocom.org/trac/wiki/rtl-sdr}
+ \bibitem{bib:usrp}
+ \url{http://www.ettus.com/home}
  \end{thebibliography}
+
+\newpage
+\begin{appendices}
+\lstinputlisting[language=Python, caption=The python program corresponding to the flow-graph in Figure \ref{fig:audio-play1}, label=lst:audio-play1]
+{flowgraphs/audioplay1.py}
+\end{appendices}
 
 \end{document}
 
